@@ -13,5 +13,7 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
+    - name: Make build script executable
+      run: chmod +x ./build.sh
     - name: Build with Gradle
       run: ./build.sh
