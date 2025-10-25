@@ -19,6 +19,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.moovie.adapter.RatingAdapter;
 import com.moovie.model.Movie;
 import com.moovie.model.Rating;
@@ -177,17 +179,36 @@ public class MovieDetailActivity extends AppCompatActivity
 
     @Override
     public void onRating(Rating rating) {
+        // Debug log before attempting to add rating
+        if (FirebaseUtil.getAuth().getCurrentUser() != null) {
+            Log.d(TAG, "User is signed in: " + FirebaseUtil.getAuth().getCurrentUser().getUid());
+        } else {
+            Log.w(TAG, "No signed-in user!");
+        }
+
+        Log.d(TAG, "Attempting to add rating for movie: " + mMovieRef.getId());
+        Log.d(TAG, "Rating value: " + rating.getRating());
+
         addRating(mMovieRef, rating)
                 .addOnSuccessListener(this, aVoid -> {
-                    Log.d(TAG, "Rating added");
+                    Log.d(TAG, "Rating added successfully");
                     hideKeyboard();
                     mRatingsRecycler.smoothScrollToPosition(0);
                 })
                 .addOnFailureListener(this, e -> {
                     Log.w(TAG, "Add rating failed", e);
+
+                    // Extra debug info
+                    if (e instanceof com.google.firebase.firestore.FirebaseFirestoreException) {
+                        com.google.firebase.firestore.FirebaseFirestoreException fe =
+                                (com.google.firebase.firestore.FirebaseFirestoreException) e;
+                        Log.w(TAG, "Firestore error code: " + fe.getCode());
+                        Log.w(TAG, "Firestore error details: " + fe.getMessage());
+                    }
+
                     hideKeyboard();
-                    Snackbar.make(findViewById(android.R.id.content), "Failed to add rating",
-                            Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(findViewById(android.R.id.content),
+                            "Failed to add rating", Snackbar.LENGTH_SHORT).show();
                 });
     }
 
