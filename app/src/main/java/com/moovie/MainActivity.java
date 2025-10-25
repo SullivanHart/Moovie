@@ -1,22 +1,4 @@
-/**
- * Copyright 2017 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.moovie;
-
-import static com.google.common.collect.Iterators.limit;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,11 +20,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.FirebaseAuth;
-import com.moovie.adapter.RestaurantAdapter;
-import com.moovie.model.Restaurant;
+import com.moovie.adapter.MovieAdapter;
+import com.moovie.model.Movie;
 import com.moovie.util.FirebaseUtil;
-import com.moovie.util.RestaurantUtil;
+import com.moovie.util.MovieUtil;
 import com.moovie.viewmodel.MainActivityViewModel;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -50,32 +31,28 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 
-import com.moovie.FilterDialogFragment.FilterListener;
-
 import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
         FilterDialogFragment.FilterListener,
-        RestaurantAdapter.OnRestaurantSelectedListener {
+        MovieAdapter.OnMovieSelectedListener {
 
     private static final String TAG = "MainActivity";
-
     private static final int RC_SIGN_IN = 9001;
-
     private static final int LIMIT = 50;
 
     private Toolbar mToolbar;
     private TextView mCurrentSearchView;
     private TextView mCurrentSortByView;
-    private RecyclerView mRestaurantsRecycler;
+    private RecyclerView mMoviesRecycler;
     private ViewGroup mEmptyView;
 
     private FirebaseFirestore mFirestore;
     private Query mQuery;
 
     private FilterDialogFragment mFilterDialog;
-    private RestaurantAdapter mAdapter;
+    private MovieAdapter mAdapter;
 
     private MainActivityViewModel mViewModel;
 
@@ -87,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements
         // Initialize Firebase
         FirebaseApp.initializeApp(this);
 
-        // Log initialization status (optional)
         if (FirebaseApp.getApps(this).isEmpty()) {
             Log.e(TAG, "Firebase is not initialized correctly.");
         } else {
@@ -99,62 +75,55 @@ public class MainActivity extends AppCompatActivity implements
 
         mCurrentSearchView = findViewById(R.id.text_current_search);
         mCurrentSortByView = findViewById(R.id.text_current_sort_by);
-        mRestaurantsRecycler = findViewById(R.id.recycler_restaurants);
+        mMoviesRecycler = findViewById(R.id.recycler_movies);
         mEmptyView = findViewById(R.id.view_empty);
 
         findViewById(R.id.filter_bar).setOnClickListener(this);
         findViewById(R.id.button_clear_filter).setOnClickListener(this);
 
-        // View model
         mViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
 
-        // Enable Firestore logging
         FirebaseFirestore.setLoggingEnabled(true);
-
-        // Initialize Firestore and the main RecyclerView
         mFirestore = FirebaseUtil.getFirestore();
 
-        // Get the 50 highest rated restaurants
-        mQuery = mFirestore.collection("restaurants")
-                .orderBy("avgRating",Query.Direction.DESCENDING)
+        // Default query: top-rated movies
+        mQuery = mFirestore.collection("movies")
+                .orderBy(Movie.FIELD_AVG_RATING, Query.Direction.DESCENDING)
                 .limit(LIMIT);
 
         initRecyclerView();
 
-        // Filter Dialog
+        // Filter dialog
         mFilterDialog = new FilterDialogFragment();
     }
 
     private void initRecyclerView() {
         if (mQuery == null) {
             Log.w(TAG, "No query, not initializing RecyclerView");
+            return;
         }
 
-        mAdapter = new RestaurantAdapter(mQuery, this) {
-
+        mAdapter = new MovieAdapter(mQuery, this) {
             @Override
             protected void onDataChanged() {
-                Log.d(TAG, "onDataChanged()");
-                // Show/hide content if the query returns empty.
                 if (getItemCount() == 0) {
-                    mRestaurantsRecycler.setVisibility(View.GONE);
+                    mMoviesRecycler.setVisibility(View.GONE);
                     mEmptyView.setVisibility(View.VISIBLE);
                 } else {
-                    mRestaurantsRecycler.setVisibility(View.VISIBLE);
+                    mMoviesRecycler.setVisibility(View.VISIBLE);
                     mEmptyView.setVisibility(View.GONE);
                 }
             }
 
             @Override
             protected void onError(FirebaseFirestoreException e) {
-                // Show a snackbar on errors
                 Snackbar.make(findViewById(android.R.id.content),
                         "Error: check logs for info.", Snackbar.LENGTH_LONG).show();
             }
         };
 
-        mRestaurantsRecycler.setLayoutManager(new LinearLayoutManager(this));
-        mRestaurantsRecycler.setAdapter(mAdapter);
+        mMoviesRecycler.setLayoutManager(new LinearLayoutManager(this));
+        mMoviesRecycler.setAdapter(mAdapter);
         Log.d(TAG, "initRecyclerView()");
     }
 
@@ -162,16 +131,13 @@ public class MainActivity extends AppCompatActivity implements
     public void onStart() {
         super.onStart();
 
-        // Start sign in if necessary
         if (shouldStartSignIn()) {
             startSignIn();
             return;
         }
 
-        // Apply filters
         onFilter(mViewModel.getFilters());
 
-        // Start listening for Firestore updates
         if (mAdapter != null) {
             mAdapter.startListening();
         }
@@ -184,53 +150,42 @@ public class MainActivity extends AppCompatActivity implements
             mAdapter.stopListening();
         }
     }
+
     private void onAddItemsClicked() {
-        CollectionReference restaurants = mFirestore.collection("restaurants");
-        for( int i = 0; i < 10; i++ ){
-            Restaurant restaurant = RestaurantUtil.getRandom( this );
-            restaurants.add(restaurant);
+        CollectionReference movies = mFirestore.collection("movies");
+        for (int i = 0; i < 10; i++) {
+            Movie movie = MovieUtil.getRandom(this);
+            movies.add(movie);
         }
     }
 
-
     @Override
     public void onFilter(Filters filters) {
-
         Log.d(TAG, "onFilter()");
 
-        // Construct query basic query
-        Query query = mFirestore.collection("restaurants");
-        // Filter by category (equality filter)
-        if (filters.hasCategory()) {
-            query = query.whereEqualTo("category", filters.getCategory());
+        Query query = mFirestore.collection("movies");
+
+        if (filters.hasGenre()) {
+            query = query.whereEqualTo("genre", filters.getGenre());
         }
 
-        // Filter by City (equality filter)
-        if (filters.hasCity()) {
-            query = query.whereEqualTo("city", filters.getCategory());
+        if (filters.hasReleaseYear()) {
+            query = query.whereEqualTo("releaseYear", filters.getReleaseYear());
         }
 
-        // Filter by Price (equality filter)
-        if (filters.hasPrice()) {
-            query = query.whereEqualTo("price", filters.getCategory());
-        }
-
-        // Sort by specified order (orderBy with direction)
         if (filters.hasSortBy()) {
             query = query.orderBy(filters.getSortBy(), filters.getSortDirection());
         }
 
-        // Limit items
         query = query.limit(LIMIT);
-        // Update the query
+
         mQuery = query;
         mAdapter.setQuery(query);
-        // Set header
+
         mCurrentSearchView.setText(Html.fromHtml(filters.getSearchDescription(this)));
         mCurrentSortByView.setText(filters.getOrderDescription(this));
-        // Save filters
-        mViewModel.setFilters(filters);
 
+        mViewModel.setFilters(filters);
     }
 
     @Override
@@ -258,7 +213,6 @@ public class MainActivity extends AppCompatActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN) {
             mViewModel.setIsSigningIn(false);
-
             if (resultCode != RESULT_OK && shouldStartSignIn()) {
                 startSignIn();
             }
@@ -269,30 +223,19 @@ public class MainActivity extends AppCompatActivity implements
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.filter_bar:
-                onFilterClicked();
+                mFilterDialog.show(getSupportFragmentManager(), FilterDialogFragment.TAG);
                 break;
             case R.id.button_clear_filter:
-                onClearFilterClicked();
+                mFilterDialog.resetFilters();
+                onFilter(Filters.getDefault());
+                break;
         }
     }
 
-    public void onFilterClicked() {
-        // Show the dialog containing filter options
-        mFilterDialog.show(getSupportFragmentManager(), FilterDialogFragment.TAG);
-    }
-
-    public void onClearFilterClicked() {
-        mFilterDialog.resetFilters();
-
-        onFilter(Filters.getDefault());
-    }
-
     @Override
-    public void onRestaurantSelected(DocumentSnapshot restaurant) {
-        // Go to the details page for the selected restaurant
-        Intent intent = new Intent(this, RestaurantDetailActivity.class);
-        intent.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, restaurant.getId());
-
+    public void onMovieSelected(DocumentSnapshot movie) {
+        Intent intent = new Intent(this, MovieDetailActivity.class);
+        intent.putExtra(MovieDetailActivity.KEY_MOVIE_ID, movie.getId());
         startActivity(intent);
     }
 
@@ -301,19 +244,13 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void startSignIn() {
-        // Sign in with FirebaseUI
         Intent intent = FirebaseUtil.getAuthUI()
                 .createSignInIntentBuilder()
                 .setAvailableProviders(Collections.singletonList(
                         new AuthUI.IdpConfig.EmailBuilder().build()))
                 .setIsSmartLockEnabled(false)
                 .build();
-
         startActivityForResult(intent, RC_SIGN_IN);
         mViewModel.setIsSigningIn(true);
-    }
-
-    private void showTodoToast() {
-        Toast.makeText(this, "TODO: Implement", Toast.LENGTH_SHORT).show();
     }
 }

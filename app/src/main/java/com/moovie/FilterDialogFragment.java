@@ -1,18 +1,3 @@
-/**
- * Copyright 2017 Google Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.moovie;
 
 import android.content.Context;
@@ -20,18 +5,22 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.moovie.model.Restaurant;
-
+import com.moovie.model.Movie;
 import com.google.firebase.firestore.Query;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
 /**
- * Dialog Fragment containing filter form.
+ * Dialog Fragment containing movie filter form.
  */
 public class FilterDialogFragment extends DialogFragment implements View.OnClickListener {
 
@@ -42,10 +31,9 @@ public class FilterDialogFragment extends DialogFragment implements View.OnClick
     }
 
     private View mRootView;
-    private Spinner mCategorySpinner;
-    private Spinner mCitySpinner;
+    private Spinner mGenreSpinner;
+    private Spinner mYearSpinner;
     private Spinner mSortSpinner;
-    private Spinner mPriceSpinner;
 
     private FilterListener mFilterListener;
 
@@ -56,22 +44,43 @@ public class FilterDialogFragment extends DialogFragment implements View.OnClick
                              @Nullable Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.dialog_filters, container, false);
 
-        mCategorySpinner = mRootView.findViewById(R.id.spinner_category);
-        mCitySpinner = mRootView.findViewById(R.id.spinner_city);
+        mGenreSpinner = mRootView.findViewById(R.id.spinner_genre);
+        mYearSpinner = mRootView.findViewById(R.id.spinner_year);
         mSortSpinner = mRootView.findViewById(R.id.spinner_sort);
-        mPriceSpinner = mRootView.findViewById(R.id.spinner_price);
 
-        // Set up button click listeners
         mRootView.findViewById(R.id.button_search).setOnClickListener(this);
         mRootView.findViewById(R.id.button_cancel).setOnClickListener(this);
+
+        // Populate genre spinner from string-array
+        ArrayAdapter<CharSequence> genreAdapter = ArrayAdapter.createFromResource(
+                requireContext(), R.array.genres, android.R.layout.simple_spinner_item);
+        genreAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mGenreSpinner.setAdapter(genreAdapter);
+
+        // Populate year spinner dynamically (from current year to 1900)
+        List<String> years = new ArrayList<>();
+        years.add(getString(R.string.value_any_year));
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        for (int y = currentYear; y >= 1900; y--) {
+            years.add(String.valueOf(y));
+        }
+        ArrayAdapter<String> yearAdapter = new ArrayAdapter<>(
+                requireContext(), android.R.layout.simple_spinner_item, years);
+        yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mYearSpinner.setAdapter(yearAdapter);
+
+        // Populate sort spinner
+        ArrayAdapter<CharSequence> sortAdapter = ArrayAdapter.createFromResource(
+                requireContext(), R.array.sort_by, android.R.layout.simple_spinner_item);
+        sortAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSortSpinner.setAdapter(sortAdapter);
 
         return mRootView;
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-
         if (context instanceof FilterListener) {
             mFilterListener = (FilterListener) context;
         }
@@ -80,115 +89,80 @@ public class FilterDialogFragment extends DialogFragment implements View.OnClick
     @Override
     public void onResume() {
         super.onResume();
-        getDialog().getWindow().setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+        if (getDialog() != null && getDialog().getWindow() != null) {
+            getDialog().getWindow().setLayout(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button_search:
-                onSearchClicked();
+                if (mFilterListener != null) {
+                    mFilterListener.onFilter(getFilters());
+                }
+                dismiss();
                 break;
             case R.id.button_cancel:
-                onCancelClicked();
+                dismiss();
                 break;
         }
     }
 
-    private void onSearchClicked() {
-        if (mFilterListener != null) {
-            mFilterListener.onFilter(getFilters());
-        }
-        dismiss();
-    }
-
-    private void onCancelClicked() {
-        dismiss();
+    @Nullable
+    private String getSelectedGenre() {
+        String selected = (String) mGenreSpinner.getSelectedItem();
+        return getString(R.string.value_any_genre).equals(selected) ? null : selected;
     }
 
     @Nullable
-    private String getSelectedCategory() {
-        String selected = (String) mCategorySpinner.getSelectedItem();
-        if (getString(R.string.value_any_category).equals(selected)) {
-            return null;
-        } else {
-            return selected;
-        }
-    }
-
-    @Nullable
-    private String getSelectedCity() {
-        String selected = (String) mCitySpinner.getSelectedItem();
-        if (getString(R.string.value_any_city).equals(selected)) {
-            return null;
-        } else {
-            return selected;
-        }
-    }
-
-    private int getSelectedPrice() {
-        String selected = (String) mPriceSpinner.getSelectedItem();
-        if (selected.equals(getString(R.string.price_1))) {
-            return 1;
-        } else if (selected.equals(getString(R.string.price_2))) {
-            return 2;
-        } else if (selected.equals(getString(R.string.price_3))) {
-            return 3;
-        } else {
-            return -1;
-        }
+    private String getSelectedYear() {
+        String selected = (String) mYearSpinner.getSelectedItem();
+        return getString(R.string.value_any_year).equals(selected) ? null : selected;
     }
 
     @Nullable
     private String getSelectedSortBy() {
         String selected = (String) mSortSpinner.getSelectedItem();
         if (getString(R.string.sort_by_rating).equals(selected)) {
-            return Restaurant.FIELD_AVG_RATING;
-        } else if (getString(R.string.sort_by_price).equals(selected)) {
-            return Restaurant.FIELD_PRICE;
+            return Movie.FIELD_AVG_RATING;
         } else if (getString(R.string.sort_by_popularity).equals(selected)) {
-            return Restaurant.FIELD_POPULARITY;
+            return Movie.FIELD_POPULARITY;
+        } else if (getString(R.string.sort_by_release_year).equals(selected)) {
+            return Movie.FIELD_RELEASE_YEAR;
         }
-
         return null;
     }
 
     @Nullable
     private Query.Direction getSortDirection() {
         String selected = (String) mSortSpinner.getSelectedItem();
-        if (getString(R.string.sort_by_rating).equals(selected)) {
-            return Query.Direction.DESCENDING;
-        } else if (getString(R.string.sort_by_price).equals(selected)) {
-            return Query.Direction.ASCENDING;
-        } else if (getString(R.string.sort_by_popularity).equals(selected)) {
+        if (getString(R.string.sort_by_rating).equals(selected) ||
+                getString(R.string.sort_by_popularity).equals(selected) ||
+                getString(R.string.sort_by_release_year).equals(selected)) {
             return Query.Direction.DESCENDING;
         }
-
         return null;
     }
 
     public void resetFilters() {
         if (mRootView != null) {
-            mCategorySpinner.setSelection(0);
-            mCitySpinner.setSelection(0);
-            mPriceSpinner.setSelection(0);
+            mGenreSpinner.setSelection(0);
+            mYearSpinner.setSelection(0);
             mSortSpinner.setSelection(0);
         }
     }
 
     public Filters getFilters() {
         Filters filters = new Filters();
-
         if (mRootView != null) {
-            filters.setCategory(getSelectedCategory());
-            filters.setCity(getSelectedCity());
-            filters.setPrice(getSelectedPrice());
+            filters.setGenre(getSelectedGenre());
+            filters.setReleaseYear(getSelectedYear());
             filters.setSortBy(getSelectedSortBy());
             filters.setSortDirection(getSortDirection());
         }
-
         return filters;
     }
 }

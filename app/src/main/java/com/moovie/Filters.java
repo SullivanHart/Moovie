@@ -2,8 +2,6 @@
  * Copyright 2017 Google Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -18,69 +16,55 @@ package com.moovie;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.moovie.model.Restaurant;
-import com.moovie.util.RestaurantUtil;
+import com.moovie.model.Movie;
 import com.google.firebase.firestore.Query;
 
 /**
- * Object for passing filters around.
+ * Object for passing movie filters around.
  */
 public class Filters {
 
-    private String category = null;
-    private String city = null;
-    private int price = -1;
+    private String genre = null;
+    private String releaseYear = null;
     private String sortBy = null;
     private Query.Direction sortDirection = null;
 
     public Filters() {}
 
+    /** Default filter: sort by rating descending */
     public static Filters getDefault() {
         Filters filters = new Filters();
-        filters.setSortBy(Restaurant.FIELD_AVG_RATING);
+        filters.setSortBy(Movie.FIELD_AVG_RATING);
         filters.setSortDirection(Query.Direction.DESCENDING);
-
         return filters;
     }
 
-    public boolean hasCategory() {
-        return !(TextUtils.isEmpty(category));
+    public boolean hasGenre() {
+        return !TextUtils.isEmpty(genre);
     }
 
-    public boolean hasCity() {
-        return !(TextUtils.isEmpty(city));
-    }
-
-    public boolean hasPrice() {
-        return (price > 0);
+    public boolean hasReleaseYear() {
+        return !TextUtils.isEmpty(releaseYear);
     }
 
     public boolean hasSortBy() {
-        return !(TextUtils.isEmpty(sortBy));
+        return !TextUtils.isEmpty(sortBy);
     }
 
-    public String getCategory() {
-        return category;
+    public String getGenre() {
+        return genre;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setGenre(String genre) {
+        this.genre = genre;
     }
 
-    public String getCity() {
-        return city;
+    public String getReleaseYear() {
+        return releaseYear;
     }
 
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public int getPrice() {
-        return price;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
+    public void setReleaseYear(String releaseYear) {
+        this.releaseYear = releaseYear;
     }
 
     public String getSortBy() {
@@ -99,45 +83,40 @@ public class Filters {
         this.sortDirection = sortDirection;
     }
 
+    /** Returns a description of the selected filters (for UI display) */
     public String getSearchDescription(Context context) {
         StringBuilder desc = new StringBuilder();
 
-        if (category == null && city == null) {
+        if (genre == null && releaseYear == null) {
             desc.append("<b>");
-            desc.append(context.getString(R.string.all_restaurants));
+            desc.append(context.getString(R.string.all_movies));
             desc.append("</b>");
         }
 
-        if (category != null) {
+        if (genre != null) {
             desc.append("<b>");
-            desc.append(category);
+            desc.append(genre);
             desc.append("</b>");
         }
 
-        if (category != null && city != null) {
-            desc.append(" in ");
+        if (genre != null && releaseYear != null) {
+            desc.append(" from ");
         }
 
-        if (city != null) {
+        if (releaseYear != null) {
             desc.append("<b>");
-            desc.append(city);
-            desc.append("</b>");
-        }
-
-        if (price > 0) {
-            desc.append(" for ");
-            desc.append("<b>");
-            desc.append(RestaurantUtil.getPriceString(price));
+            desc.append(releaseYear);
             desc.append("</b>");
         }
 
         return desc.toString();
     }
 
+    /** Returns a description of the current sort order */
     public String getOrderDescription(Context context) {
-        if (Restaurant.FIELD_PRICE.equals(sortBy)) {
-            return context.getString(R.string.sorted_by_price);
-        } else if (Restaurant.FIELD_POPULARITY.equals(sortBy)) {
+        if (Movie.FIELD_RELEASE_YEAR.equals(sortBy)) {
+            return context.getString(R.string.sorted_by_release_year);
+        } else if (Movie.FIELD_POPULARITY.equals(sortBy)) {
             return context.getString(R.string.sorted_by_popularity);
         } else {
             return context.getString(R.string.sorted_by_rating);

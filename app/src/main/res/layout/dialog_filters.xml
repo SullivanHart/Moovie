@@ -14,66 +14,44 @@
         android:layout_marginBottom="8dp"
         android:text="@string/header_filters" />
 
-    <!-- Food Type -->
+    <!-- Genre -->
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/icon_category"
+            android:id="@+id/icon_genre"
             style="@style/AppTheme.FilterIcon"
             android:layout_centerVertical="true"
             app:tint="@color/greySecondary"
-            app:srcCompat="@drawable/ic_fastfood_white_24dp" />
+            app:srcCompat="@drawable/ic_movie_white_24dp" />
 
         <Spinner
-            android:id="@+id/spinner_category"
+            android:id="@+id/spinner_genre"
             style="@style/AppTheme.FilterSpinner"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/icon_category"
-            android:entries="@array/categories" />
+            android:layout_toRightOf="@+id/icon_genre"
+            android:entries="@array/genres" />
 
     </RelativeLayout>
 
-    <!-- Location -->
+    <!-- Release Year -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/icon_city"
+            android:id="@+id/icon_year"
             style="@style/AppTheme.FilterIcon"
             android:layout_centerVertical="true"
             app:tint="@color/greySecondary"
-            app:srcCompat="@drawable/ic_place_white_24px" />
+            app:srcCompat="@drawable/baseline_calendar_month_24" />
 
         <Spinner
-            android:id="@+id/spinner_city"
+            android:id="@+id/spinner_year"
             style="@style/AppTheme.FilterSpinner"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/icon_city"
-            android:entries="@array/cities" />
-
-    </RelativeLayout>
-
-    <!-- Price -->
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:id="@+id/icon_price"
-            style="@style/AppTheme.FilterIcon"
-            android:layout_centerVertical="true"
-            app:tint="@color/greySecondary"
-            app:srcCompat="@drawable/ic_monetization_on_white_24px" />
-
-        <Spinner
-            android:id="@+id/spinner_price"
-            style="@style/AppTheme.FilterSpinner"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/icon_price"
-            android:entries="@array/prices" />
+            android:layout_toRightOf="@+id/icon_year" />
 
     </RelativeLayout>
 
@@ -101,7 +79,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
 
         <View
             android:layout_width="0dp"
@@ -118,7 +97,6 @@
             android:textColor="@color/greySecondary"
             android:theme="@style/ThemeOverlay.FilterButton" />
 
-
         <Button
             android:id="@+id/button_search"
             android:layout_width="0dp"
@@ -130,4 +108,3 @@
     </LinearLayout>
 
 </LinearLayout>
-
