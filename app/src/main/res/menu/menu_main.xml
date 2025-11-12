@@ -10,4 +10,10 @@
         android:id="@+id/menu_add_items"
         android:title="@string/add_random_items" />
 
+    <item
+        android:id="@+id/menu_search"
+        android:title="Search"
+        android:icon="@drawable/ic_search_white_24px"
+        app:showAsAction="ifRoom|withText" />
+
 </menu>

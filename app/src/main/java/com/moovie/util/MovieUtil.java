@@ -42,7 +42,8 @@ public class MovieUtil {
     public static Movie getRandom(Context context) {
         Movie movie = new Movie();
         movie.setTitle(getRandomTitle());
-        movie.setReleaseYear(MIN_YEAR + random.nextInt(MAX_YEAR - MIN_YEAR + 1));
+        int randomYear = MIN_YEAR + random.nextInt(MAX_YEAR - MIN_YEAR + 1);
+        movie.setReleaseDate(String.valueOf(randomYear));
         movie.setGenre(getRandomString(GENRES));
         movie.setPosterUrl(getRandomPosterUrl());
         movie.setNumRatings(random.nextInt(1000));

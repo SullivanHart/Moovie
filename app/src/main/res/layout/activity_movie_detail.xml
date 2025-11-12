@@ -19,7 +19,7 @@
             android:layout_height="200dp"
             android:alpha="1.0"
             android:scaleType="centerCrop"
-            tools:src="@drawable/movie_placeholder" />
+            tools:src="@drawable/ic_movie_placeholder" />
 
         <View
             android:layout_width="match_parent"
@@ -108,7 +108,7 @@
         tools:visibility="visible">
 
         <ImageView
-            android:src="@drawable/movie_placeholder"
+            android:src="@drawable/ic_movie_placeholder"
             style="@style/AppTheme.PizzaGuy" />
 
         <TextView

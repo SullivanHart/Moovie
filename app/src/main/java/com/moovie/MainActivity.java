@@ -204,6 +204,9 @@ public class MainActivity extends AppCompatActivity implements
                 FirebaseUtil.getAuthUI().signOut(this);
                 startSignIn();
                 break;
+            case R.id.menu_search:
+                startActivity(new Intent(this, SearchActivity.class));
+                break;
         }
         return super.onOptionsItemSelected(item);
     }

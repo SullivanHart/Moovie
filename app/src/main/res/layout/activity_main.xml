@@ -128,7 +128,7 @@
 
         <ImageView
             style="@style/AppTheme.PizzaGuy"
-            android:src="@drawable/movie_placeholder" />
+            android:src="@drawable/ic_movie_placeholder" />
 
         <TextView
             style="@style/AppTheme.Body1"

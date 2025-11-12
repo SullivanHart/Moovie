@@ -1,6 +1,7 @@
 package com.moovie.model;
 
 import com.google.firebase.firestore.IgnoreExtraProperties;
+import com.google.gson.annotations.SerializedName;
 
 @IgnoreExtraProperties
 public class Movie {
@@ -10,11 +11,23 @@ public class Movie {
     public static final String FIELD_AVG_RATING = "avgRating";
     public static final String FIELD_RELEASE_YEAR = "avgRating";
 
+    @SerializedName("title")
     private String title;
-    private int releaseYear;
+
+    // TMDB returns release_date as a String (like "2024-11-10")
+    @SerializedName("release_date")
+    private String releaseDate;
+
     private String genre;
+
+    // TMDB uses poster_path
+    @SerializedName("poster_path")
     private String posterUrl;
+
+    // TMDB uses "id"
+    @SerializedName("id")
     private int tmdbId;
+
     private int numRatings;
     private double avgRating;
 
@@ -23,7 +36,6 @@ public class Movie {
     public Movie(String title, int releaseYear, String genre, String posterUrl,
                  int tmdbId, int numRatings, double avgRating) {
         this.title = title;
-        this.releaseYear = releaseYear;
         this.genre = genre;
         this.posterUrl = posterUrl;
         this.tmdbId = tmdbId;
@@ -31,11 +43,13 @@ public class Movie {
         this.avgRating = avgRating;
     }
 
+    // --- getters/setters ---
+
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
-    public int getReleaseYear() { return releaseYear; }
-    public void setReleaseYear(int releaseYear) { this.releaseYear = releaseYear; }
+    public String getReleaseDate() { return releaseDate; }
+    public void setReleaseDate(String releaseDate) { this.releaseDate = releaseDate; }
 
     public String getGenre() { return genre; }
     public void setGenre(String genre) { this.genre = genre; }
@@ -51,4 +65,11 @@ public class Movie {
 
     public double getAvgRating() { return avgRating; }
     public void setAvgRating(double avgRating) { this.avgRating = avgRating; }
+    public String getReleaseYear() {
+        if (releaseDate != null && releaseDate.length() >= 4) {
+            return releaseDate.substring(0, 4);
+        } else {
+            return "N/A";
+        }
+    }
 }

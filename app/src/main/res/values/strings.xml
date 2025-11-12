@@ -21,6 +21,8 @@
     <string name="sorted_by_popularity">sorted by popularity</string>
     <string name="sorted_by_release_year">sorted by release year</string>
 
+    <string name="movie_poster">Movie poster image</string>
+
     <string name="add_random_items">Add Random Movies</string>
     <string name="sign_out">Sign Out</string>
     <string name="delete_all">Delete All</string>
