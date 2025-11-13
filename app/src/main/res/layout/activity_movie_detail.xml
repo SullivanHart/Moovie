@@ -130,19 +130,6 @@
 
     </LinearLayout>
 
-    <!-- Floating Action Button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_show_rating_dialog"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/action_buttons_container"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="-28dp"
-        android:layout_marginRight="16dp"
-        app:srcCompat="@drawable/ic_add_white_24px"
-        app:backgroundTint="#FF6B6B"
-        app:tint="@android:color/white" />
-
     <!-- Expandable Streaming Platforms Section -->
     <LinearLayout
         android:id="@+id/view_platforms"
@@ -263,5 +250,18 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <!-- Floating Action Button -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_show_rating_dialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="16dp"
+        app:srcCompat="@drawable/baseline_assignment_24"
+        app:backgroundTint="#FF6B6B"
+        app:tint="@android:color/white" />
 
 </RelativeLayout>

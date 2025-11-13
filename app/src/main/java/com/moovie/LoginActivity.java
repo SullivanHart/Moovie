@@ -9,126 +9,98 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.moovie.model.UserProfile;
-import com.moovie.util.FirebaseUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore mFirestore;
+
     private EditText emailInput, passwordInput;
+    private Button loginButton, signupButton;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mAuth = FirebaseUtil.getAuth();
-        mFirestore = FirebaseUtil.getFirestore();
-
-        // Check if user is already logged in
-        if (mAuth.getCurrentUser() != null) {
-            navigateToMain();
-            return;
-        }
+        mAuth = FirebaseAuth.getInstance();
 
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
+        loginButton = findViewById(R.id.loginButton);
+        signupButton = findViewById(R.id.signupButton);
 
-        Button loginButton = findViewById(R.id.loginButton);
-        Button signUpButton = findViewById(R.id.signUpButton);
+        loginButton.setOnClickListener(v -> attemptLogin());
+        signupButton.setOnClickListener(v ->
+                startActivity(new Intent(this, SignupActivity.class)));
 
-        loginButton.setOnClickListener(v -> {
-            String email = emailInput.getText().toString().trim();
-            String password = passwordInput.getText().toString();
-            if (!email.isEmpty() && !password.isEmpty()) {
-                signIn(email, password);
-            } else {
-                Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        signUpButton.setOnClickListener(v -> {
-            String email = emailInput.getText().toString().trim();
-            String password = passwordInput.getText().toString();
-            if (!email.isEmpty() && !password.isEmpty()) {
-                createAccount(email, password);
-            } else {
-                Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show();
-            }
-        });
+        // Auto-login
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            navigateToMain();
+        }
     }
 
-    private void createAccount(String email, String password) {
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        Log.d(TAG, "Account created: " + user.getUid());
-                        initializeUserDocument(user);
-                    } else {
-                        Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                        Toast.makeText(LoginActivity.this, "Authentication failed: " +
-                                task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
+    private void attemptLogin() {
+        String email = emailInput.getText().toString().trim();
+        String password = passwordInput.getText().toString();
 
-    private void signIn(String email, String password) {
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        Log.d(TAG, "Sign in successful: " + user.getUid());
-                        initializeUserDocument(user);
-                    } else {
-                        Log.w(TAG, "signInWithEmail:failure", task.getException());
-                        Toast.makeText(LoginActivity.this, "Authentication failed: " +
-                                task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void initializeUserDocument(FirebaseUser user) {
-        if (user == null) {
+        if (email.isEmpty() || password.isEmpty()) {
+            showError("Please enter email and password");
             return;
         }
 
-        String userId = user.getUid();
-        DocumentReference userRef = mFirestore.collection("users").document(userId);
+        clearErrorStyles();
 
-        userRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                if (!task.getResult().exists()) {
-                    userRef.set(new UserProfile(userId))
-                            .addOnSuccessListener(aVoid -> {
-                                Log.d(TAG, "User document created: " + userId);
-                                navigateToMain();
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e(TAG, "Error creating user document", e);
-                                Toast.makeText(LoginActivity.this,
-                                        "Error initializing user", Toast.LENGTH_SHORT).show();
-                            });
-                } else {
-                    Log.d(TAG, "User document already exists: " + userId);
-                    navigateToMain();
-                }
-            } else {
-                Log.e(TAG, "Error checking user document", task.getException());
-                navigateToMain();
-            }
-        });
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "Login successful: " + email);
+                        navigateToMain();
+                        return;
+                    }
+
+                    Exception e = task.getException();
+                    Log.e(TAG, "Login failed", e);
+
+                    // Always generic error for Firebase email enumeration protection
+                    highlightError(emailInput);
+                    highlightError(passwordInput);
+                    shakeField(emailInput);
+                    shakeField(passwordInput);
+                    showError("Invalid email or password");
+                });
     }
 
     private void navigateToMain() {
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        startActivity(intent);
+        startActivity(new Intent(this, MainActivity.class));
         finish();
+    }
+
+    private void showError(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+        Log.w(TAG, msg);
+    }
+
+    private void highlightError(EditText field) {
+        field.setBackgroundTintList(getColorStateList(android.R.color.holo_red_light));
+    }
+
+    private void clearErrorStyles() {
+        emailInput.setBackgroundTintList(getColorStateList(android.R.color.darker_gray));
+        passwordInput.setBackgroundTintList(getColorStateList(android.R.color.darker_gray));
+    }
+
+    private void shakeField(EditText field) {
+        field.animate()
+                .translationX(20)
+                .setDuration(50)
+                .withEndAction(() ->
+                        field.animate()
+                                .translationX(0)
+                                .setDuration(50)
+                );
     }
 }

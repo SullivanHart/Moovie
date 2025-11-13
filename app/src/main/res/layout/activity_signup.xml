@@ -17,7 +17,7 @@
             android:inputType="textEmailAddress"
             android:backgroundTint="@color/darker_gray"
             android:padding="12dp"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="16dp" />
 
         <EditText
             android:id="@+id/passwordInput"
@@ -27,19 +27,20 @@
             android:inputType="textPassword"
             android:backgroundTint="@color/darker_gray"
             android:padding="12dp"
-            android:layout_marginBottom="16dp"/>
-
-        <Button
-            android:id="@+id/loginButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Login"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginBottom="16dp" />
 
         <Button
             android:id="@+id/signupButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sign Up / Reset Password" />
+            android:text="Sign Up"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/resetPasswordButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Reset Password" />
+
     </LinearLayout>
 </ScrollView>
