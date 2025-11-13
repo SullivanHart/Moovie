@@ -1,64 +1,122 @@
 package com.moovie;
 
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link WatchlistFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class WatchlistFragment extends Fragment {
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+import com.google.android.material.snackbar.Snackbar;
+import com.moovie.adapter.MovieListAdapter;
+import com.moovie.util.FirebaseUtil;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class WatchlistFragment extends Fragment implements MovieListAdapter.OnMovieSelectedListener {
+    private static final String TAG = "WatchlistFragment";
+
+    private RecyclerView mMoviesRecycler;
+    private ViewGroup mEmptyView;
+    private MovieListAdapter mAdapter;
+    private FirebaseFirestore mFirestore;
+    private Query mQuery;
+    private String mUserId;
 
     public WatchlistFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment WatchlistFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static WatchlistFragment newInstance(String param1, String param2) {
-        WatchlistFragment fragment = new WatchlistFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_watchlist, container, false);
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mMoviesRecycler = view.findViewById(R.id.recycler_movies);
+        mEmptyView = view.findViewById(R.id.view_empty);
+
+        mFirestore = FirebaseUtil.getFirestore();
+        mUserId = FirebaseUtil.getAuth().getCurrentUser().getUid();
+
+        // Set up query for want to watch movies
+        CollectionReference collectionRef = mFirestore
+                .collection("users")
+                .document(mUserId)
+                .collection("wantToWatch");
+
+        mQuery = collectionRef.orderBy("addedAt", Query.Direction.DESCENDING);
+
+        initRecyclerView();
+    }
+
+    private void initRecyclerView() {
+        if (mQuery == null) {
+            Log.w(TAG, "No query, not initializing RecyclerView");
+            return;
+        }
+
+        mAdapter = new MovieListAdapter(mQuery, this) {
+            @Override
+            protected void onDataChanged() {
+                if (getItemCount() == 0) {
+                    mMoviesRecycler.setVisibility(View.GONE);
+                    mEmptyView.setVisibility(View.VISIBLE);
+                } else {
+                    mMoviesRecycler.setVisibility(View.VISIBLE);
+                    mEmptyView.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            protected void onError(FirebaseFirestoreException e) {
+                if (getView() != null) {
+                    Snackbar.make(mMoviesRecycler, "Error loading movies", Snackbar.LENGTH_LONG).show();
+                }
+                Log.e(TAG, "Error: ", e);
+            }
+        };
+
+        mMoviesRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        mMoviesRecycler.setAdapter(mAdapter);
+        Log.d(TAG, "initRecyclerView()");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (mAdapter != null) {
+            mAdapter.startListening();
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_watchlist, container, false);
+    public void onStop() {
+        super.onStop();
+        if (mAdapter != null) {
+            mAdapter.stopListening();
+        }
     }
+
+    @Override
+    public void onMovieSelected(DocumentSnapshot movie) {
+        Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+        intent.putExtra(MovieDetailActivity.KEY_MOVIE_ID, movie.getId());
+        startActivity(intent);
+    }
+
 }
