@@ -4,73 +4,99 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E0E0E0"
+    android:background="#FAFAFA"
     tools:context="com.moovie.MovieDetailActivity">
 
+    <!-- Header with Image -->
     <RelativeLayout
         android:id="@+id/movie_top_card"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="4dp">
+        android:layout_height="300dp"
+        android:elevation="0dp">
 
+        <!-- Image with subtle overlay -->
         <ImageView
             android:id="@+id/movie_image"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:alpha="1.0"
+            android:layout_height="match_parent"
+            android:alpha="0.85"
             android:scaleType="centerCrop"
             tools:src="@drawable/ic_movie_placeholder" />
 
+        <!-- Dark gradient overlay for text readability -->
         <View
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:background="@drawable/gradient_up" />
+            android:layout_height="match_parent"
+            android:background="@drawable/gradient_down" />
 
-        <!-- Back button -->
+        <!-- Back button (Arrow) -->
         <ImageView
             android:id="@+id/movie_button_back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="8dp"
-            app:srcCompat="@drawable/ic_close_white_24px" />
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="12dp"
+            app:srcCompat="@drawable/ic_arrow_back_white_24px" />
 
-        <TextView
-            android:id="@+id/movie_title"
-            style="@style/AppTheme.Title"
-            android:layout_width="wrap_content"
+        <!-- Title and Rating Container -->
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:textColor="@android:color/white"
-            android:textStyle="bold"
-            tools:text="Some Movie" />
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp">
 
-        <me.zhanghai.android.materialratingbar.MaterialRatingBar
-            android:id="@+id/movie_rating"
-            style="@style/Widget.MaterialRatingBar.RatingBar.Indicator"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_below="@+id/movie_title"
-            android:layout_marginLeft="8dp"
-            app:mrb_progressTint="@android:color/white"
-            app:mrb_secondaryProgressTint="@android:color/white" />
+            <TextView
+                android:id="@+id/movie_title"
+                style="@style/AppTheme.Title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                android:textSize="24sp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                tools:text="Some Movie" />
 
-        <TextView
-            android:id="@+id/movie_num_ratings"
-            style="@style/AppTheme.Body1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/movie_rating"
-            android:layout_marginLeft="4dp"
-            android:layout_toRightOf="@+id/movie_rating"
-            android:gravity="center"
-            android:textColor="@android:color/white"
-            tools:text="(10)" />
+            <!-- Rating Row -->
+            <RelativeLayout
+                android:id="@+id/rating_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/movie_title"
+                android:layout_marginTop="8dp">
+
+                <me.zhanghai.android.materialratingbar.MaterialRatingBar
+                    android:id="@+id/movie_rating"
+                    style="@style/Widget.MaterialRatingBar.RatingBar.Indicator"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    app:mrb_progressTint="@android:color/white"
+                    app:mrb_secondaryProgressTint="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/movie_num_ratings"
+                    style="@style/AppTheme.Body1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@+id/movie_rating"
+                    android:layout_marginLeft="8dp"
+                    android:layout_toRightOf="@+id/movie_rating"
+                    android:gravity="center"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp"
+                    tools:text="(10)" />
+
+            </RelativeLayout>
+
+        </RelativeLayout>
 
     </RelativeLayout>
 
+    <!-- Floating Action Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_show_rating_dialog"
         android:layout_width="wrap_content"
@@ -79,22 +105,26 @@
         android:layout_alignParentRight="true"
         android:layout_marginBottom="-28dp"
         android:layout_marginRight="16dp"
-        app:srcCompat="@drawable/ic_add_white_24px" />
+        app:srcCompat="@drawable/ic_add_white_24px"
+        app:backgroundTint="#FF6B6B"
+        app:tint="@android:color/white" />
 
-    <!-- Ratings -->
+    <!-- Ratings RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_ratings"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@+id/movie_top_card"
         android:background="@android:color/transparent"
         android:clipToPadding="false"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingTop="32dp"
         android:paddingBottom="16dp"
-        android:paddingTop="28dp"
         android:visibility="gone"
         tools:listitem="@layout/item_rating" />
 
-    <!-- View for empty ratings -->
+    <!-- Empty State -->
     <LinearLayout
         android:id="@+id/view_empty_ratings"
         android:layout_width="wrap_content"
@@ -102,6 +132,7 @@
         android:layout_alignParentBottom="true"
         android:layout_below="@+id/movie_top_card"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="48dp"
         android:gravity="center"
         android:orientation="vertical"
         android:visibility="gone"
@@ -109,14 +140,19 @@
 
         <ImageView
             android:src="@drawable/ic_movie_placeholder"
-            style="@style/AppTheme.PizzaGuy" />
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:alpha="0.4"
+            android:layout_marginBottom="16dp"
+            android:scaleType="centerInside" />
 
         <TextView
             style="@style/AppTheme.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/message_no_reviews"
-            android:textColor="@color/greyDisabled" />
+            android:textColor="@color/greyDisabled"
+            android:textSize="16sp" />
 
     </LinearLayout>
 

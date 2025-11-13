@@ -151,14 +151,6 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    private void onAddItemsClicked() {
-        CollectionReference movies = mFirestore.collection("movies");
-        for (int i = 0; i < 10; i++) {
-            Movie movie = MovieUtil.getRandom(this);
-            movies.add(movie);
-        }
-    }
-
     @Override
     public void onFilter(Filters filters) {
         Log.d(TAG, "onFilter()");
@@ -197,9 +189,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_add_items:
-                onAddItemsClicked();
-                break;
             case R.id.menu_sign_out:
                 FirebaseUtil.getAuthUI().signOut(this);
                 startSignIn();

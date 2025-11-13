@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.moovie.R;
 import com.moovie.model.Movie;
+import com.moovie.util.ImageUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,18 @@ import java.util.List;
 public class ApiMovieAdapter extends RecyclerView.Adapter<ApiMovieAdapter.MovieViewHolder> {
 
     private List<Movie> movies = new ArrayList<>();
-    private static final String IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
+
+    // Interface for click handling
+    public interface OnMovieSelectedListener {
+        void onMovieSelected(Movie movie);
+    }
+
+    private OnMovieSelectedListener mListener;
+
+    // Constructor with listener
+    public ApiMovieAdapter(OnMovieSelectedListener listener) {
+        this.mListener = listener;
+    }
 
     @NonNull
     @Override
@@ -36,15 +48,24 @@ public class ApiMovieAdapter extends RecyclerView.Adapter<ApiMovieAdapter.MovieV
         holder.title.setText(movie.getTitle());
         holder.year.setText(String.valueOf(movie.getReleaseYear()));
 
-        // Load poster if available
-        if (movie.getPosterUrl() != null && !movie.getPosterUrl().isEmpty()) {
+        // Load poster image using ImageUtil
+        String imageUrl = ImageUtil.buildImageUrl(movie.getPosterUrl());
+        if (imageUrl != null) {
             Glide.with(holder.itemView.getContext())
-                    .load(IMAGE_BASE_URL + movie.getPosterUrl())
+                    .load(imageUrl)
                     .placeholder(R.drawable.ic_movie_placeholder)
+                    .error(R.drawable.ic_movie_placeholder)
                     .into(holder.poster);
         } else {
             holder.poster.setImageResource(R.drawable.ic_movie_placeholder);
         }
+
+        // Add click listener
+        holder.itemView.setOnClickListener(v -> {
+            if (mListener != null) {
+                mListener.onMovieSelected(movie);
+            }
+        });
     }
 
     @Override

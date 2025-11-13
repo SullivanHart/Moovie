@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.moovie.R;
 import com.moovie.model.Movie;
+import com.moovie.util.ImageUtil;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 
@@ -71,10 +72,17 @@ public class MovieAdapter extends FirestoreAdapter<MovieAdapter.ViewHolder> {
             Movie movie = snapshot.toObject(Movie.class);
             Resources resources = itemView.getResources();
 
-            // Load image
-            Glide.with(imageView.getContext())
-                    .load(movie.getPosterUrl())
-                    .into(imageView);
+            // Load image using ImageUtil
+            String imageUrl = ImageUtil.buildImageUrl(movie.getPosterUrl());
+            if (imageUrl != null) {
+                Glide.with(imageView.getContext())
+                        .load(imageUrl)
+                        .placeholder(R.drawable.ic_movie_placeholder)
+                        .error(R.drawable.ic_movie_placeholder)
+                        .into(imageView);
+            } else {
+                imageView.setImageResource(R.drawable.ic_movie_placeholder);
+            }
 
             titleView.setText(movie.getTitle());
             ratingBar.setRating((float) movie.getAvgRating());
