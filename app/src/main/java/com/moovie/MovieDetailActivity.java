@@ -6,8 +6,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -103,6 +105,26 @@ public class MovieDetailActivity extends AppCompatActivity
                 }
             }
         };
+
+        Button buttonWatched = findViewById(R.id.button_watched);
+        Button buttonWantToWatch = findViewById(R.id.button_want_to_watch);
+
+        buttonWatched.setOnClickListener(v -> {
+            buttonWatched.setSelected(!buttonWatched.isSelected());
+            if (buttonWatched.isSelected()) {
+                Toast.makeText(this, "Added to Watched", Toast.LENGTH_SHORT).show();
+                // TODO: Save to user profile
+            }
+        });
+
+        buttonWantToWatch.setOnClickListener(v -> {
+            buttonWantToWatch.setSelected(!buttonWantToWatch.isSelected());
+            if (buttonWantToWatch.isSelected()) {
+                Toast.makeText(this, "Added to Want to Watch", Toast.LENGTH_SHORT).show();
+                // TODO: Save to user profile
+            }
+        });
+
 
         mRatingsRecycler.setLayoutManager(new LinearLayoutManager(this));
         mRatingsRecycler.setAdapter(mRatingAdapter);

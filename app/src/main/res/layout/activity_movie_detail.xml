@@ -96,12 +96,46 @@
 
     </RelativeLayout>
 
+    <!-- Action Buttons Container -->
+    <LinearLayout
+        android:id="@+id/action_buttons_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/movie_top_card"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center"
+        android:background="#FFFFFF"
+        android:elevation="2dp">
+
+        <Button
+            android:id="@+id/button_watched"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Watched"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_watched_selector" />
+
+        <Button
+            android:id="@+id/button_want_to_watch"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="Want to Watch"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_want_to_watch_selector" />
+
+    </LinearLayout>
+
     <!-- Floating Action Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_show_rating_dialog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/movie_top_card"
+        android:layout_alignBottom="@+id/action_buttons_container"
         android:layout_alignParentRight="true"
         android:layout_marginBottom="-28dp"
         android:layout_marginRight="16dp"
@@ -114,12 +148,12 @@
         android:id="@+id/recycler_ratings"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/movie_top_card"
+        android:layout_below="@+id/action_buttons_container"
         android:background="@android:color/transparent"
         android:clipToPadding="false"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
-        android:paddingTop="32dp"
+        android:paddingTop="16dp"
         android:paddingBottom="16dp"
         android:visibility="gone"
         tools:listitem="@layout/item_rating" />
@@ -130,7 +164,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_below="@+id/movie_top_card"
+        android:layout_below="@+id/action_buttons_container"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="48dp"
         android:gravity="center"
