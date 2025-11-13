@@ -13,15 +13,20 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.snackbar.Snackbar;
+import com.moovie.adapter.PlatformAdapter;
 import com.moovie.adapter.RatingAdapter;
+import com.moovie.app.AppStore;
+import com.moovie.data.WatchmodeRepository;
 import com.moovie.model.Movie;
 import com.moovie.model.MovieListItem;
 import com.moovie.model.Rating;
+import com.moovie.model.watchmode.Platform;
 import com.moovie.util.FirebaseUtil;
 import com.moovie.util.ImageUtil;
 import com.google.firebase.firestore.DocumentReference;
@@ -31,6 +36,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
+
+import java.util.List;
 
 import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 
@@ -59,6 +66,9 @@ public class MovieDetailActivity extends AppCompatActivity
 
     private Movie mCurrentMovie;
 
+    private RecyclerView mPlatformsRecycler;
+    private ViewGroup mPlatformsContainer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +94,9 @@ public class MovieDetailActivity extends AppCompatActivity
         mMovieRef = mFirestore.collection("movies").document(movieId);
         mUserRef = mFirestore.collection("users").document(userId);
 
+        mPlatformsContainer = findViewById(R.id.view_platforms);
+        mPlatformsRecycler = findViewById(R.id.recycler_platforms);
+
         // Get ratings
         Query ratingsQuery = mMovieRef
                 .collection("ratings")
@@ -105,6 +118,28 @@ public class MovieDetailActivity extends AppCompatActivity
 
         mRatingsRecycler.setLayoutManager(new LinearLayoutManager(this));
         mRatingsRecycler.setAdapter(mRatingAdapter);
+
+        // Find expand headers
+        View platformsHeader = findViewById(R.id.platforms_header);
+        ImageView platformsExpandIcon = findViewById(R.id.platforms_expand_icon);
+        View reviewsHeader = findViewById(R.id.reviews_header);
+        ImageView reviewsExpandIcon = findViewById(R.id.reviews_expand_icon);
+
+        // Expand/collapse listeners
+        platformsHeader.setOnClickListener(v -> {
+            boolean visible = mPlatformsRecycler.getVisibility() == View.VISIBLE;
+            mPlatformsRecycler.setVisibility(visible ? View.GONE : View.VISIBLE);
+            platformsExpandIcon.setImageResource(
+                    visible ? R.drawable.ic_expand_more : R.drawable.ic_expand_less);
+        });
+
+        reviewsHeader.setOnClickListener(v -> {
+            boolean visible = mRatingsRecycler.getVisibility() == View.VISIBLE;
+            mRatingsRecycler.setVisibility(visible ? View.GONE : View.VISIBLE);
+            reviewsExpandIcon.setImageResource(
+                    visible ? R.drawable.ic_expand_more : R.drawable.ic_expand_less);
+        });
+
 
         // Button listeners
         buttonWatched.setOnClickListener(v -> toggleWatched());
@@ -262,6 +297,7 @@ public class MovieDetailActivity extends AppCompatActivity
     }
 
     private void onMovieLoaded(Movie movie) {
+        mCurrentMovie = movie;
         mTitleView.setText(movie.getTitle());
         mRatingIndicator.setRating((float) movie.getAvgRating());
         mNumRatingsView.setText(getString(R.string.fmt_num_ratings, movie.getNumRatings()));
@@ -276,6 +312,40 @@ public class MovieDetailActivity extends AppCompatActivity
         } else {
             mImageView.setImageResource(R.drawable.ic_movie_placeholder);
         }
+
+        // Streaming platforms integration
+        WatchmodeRepository repo = AppStore.getWatchmodeRepo(this);
+
+
+        repo.fetchPlatformsByTmdbId(movie.getTmdbId(), new WatchmodeRepository.PlatformsCallback() {
+            @Override
+            public void onSuccess(String titleId, List<Platform> platforms) {
+                runOnUiThread(() -> renderPlatforms(platforms, titleId));
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.e(TAG, "WM platforms error", e);
+                runOnUiThread(() -> {
+                    mPlatformsContainer.setVisibility(View.GONE);
+                });
+            }
+        });
+    }
+
+    private void renderPlatforms(List<Platform> platforms, String titleId) {
+        if (platforms == null || platforms.isEmpty()) {
+            mPlatformsContainer.setVisibility(View.GONE);
+            return;
+        }
+
+        PlatformAdapter adapter = new PlatformAdapter(platforms);
+        // Use grid layout (single expandable row)
+        mPlatformsRecycler.setLayoutManager(new GridLayoutManager(this, 3));
+        mPlatformsRecycler.setAdapter(adapter);
+        mPlatformsContainer.setVisibility(View.VISIBLE);
+
+        Log.d(TAG, "WM title_id: " + titleId + " platforms: " + platforms.size());
     }
 
     public void onBackArrowClicked(View view) {

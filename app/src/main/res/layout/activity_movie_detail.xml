@@ -143,50 +143,124 @@
         app:backgroundTint="#FF6B6B"
         app:tint="@android:color/white" />
 
-    <!-- Ratings RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_ratings"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/action_buttons_container"
-        android:background="@android:color/transparent"
-        android:clipToPadding="false"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:visibility="gone"
-        tools:listitem="@layout/item_rating" />
-
-    <!-- Empty State -->
+    <!-- Expandable Streaming Platforms Section -->
     <LinearLayout
-        android:id="@+id/view_empty_ratings"
-        android:layout_width="wrap_content"
+        android:id="@+id/view_platforms"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_below="@+id/action_buttons_container"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="48dp"
-        android:gravity="center"
         android:orientation="vertical"
-        android:visibility="gone"
-        tools:visibility="visible">
+        android:padding="8dp"
+        android:background="#FFFFFF"
+        android:elevation="1dp">
 
-        <ImageView
-            android:src="@drawable/ic_movie_placeholder"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:alpha="0.4"
-            android:layout_marginBottom="16dp"
-            android:scaleType="centerInside" />
-
-        <TextView
-            style="@style/AppTheme.Body1"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/platforms_header"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/message_no_reviews"
-            android:textColor="@color/greyDisabled"
-            android:textSize="16sp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Streaming Platforms"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/platforms_expand_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_expand_more"
+                app:tint="@color/black" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_platforms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:nestedScrollingEnabled="false"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
+    </LinearLayout>
+
+    <!-- Expandable Reviews Section -->
+    <LinearLayout
+        android:id="@+id/view_reviews"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view_platforms"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:background="#FFFFFF"
+        android:elevation="1dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:id="@+id/reviews_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="User Reviews"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/reviews_expand_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_expand_more"
+                app:tint="@color/black" />
+        </LinearLayout>
+
+        <!-- Reviews List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_ratings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:nestedScrollingEnabled="false"
+            android:padding="8dp"
+            tools:listitem="@layout/item_rating" />
+
+        <!-- Empty State (now inside the tab) -->
+        <LinearLayout
+            android:id="@+id/view_empty_ratings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone"
+            android:padding="16dp"
+            tools:visibility="visible">
+
+            <ImageView
+                android:src="@drawable/ic_movie_placeholder"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:alpha="0.4"
+                android:layout_marginBottom="16dp"
+                android:scaleType="centerInside" />
+
+            <TextView
+                style="@style/AppTheme.Body1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/message_no_reviews"
+                android:textColor="@color/greyDisabled"
+                android:textSize="16sp" />
+        </LinearLayout>
 
     </LinearLayout>
 
