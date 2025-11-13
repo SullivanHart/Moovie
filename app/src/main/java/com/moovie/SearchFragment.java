@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.moovie.adapter.ApiMovieAdapter;
 import com.moovie.model.Movie;
 import com.moovie.model.TMDBResponse;
-import com.moovie.util.ApiClient;
+import com.moovie.util.TMDBApiClient;
 import com.moovie.util.ApiService;
 import com.moovie.util.FirebaseUtil;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -61,7 +61,7 @@ public class SearchFragment extends Fragment implements ApiMovieAdapter.OnMovieS
         // Initialize Firestore
         mFirestore = FirebaseUtil.getFirestore();
 
-        apiService = ApiClient.getClient().create(ApiService.class);
+        apiService = TMDBApiClient.getClient().create(ApiService.class);
 
         // Listen for text changes in the search box
         searchInput.addTextChangedListener(new TextWatcher() {

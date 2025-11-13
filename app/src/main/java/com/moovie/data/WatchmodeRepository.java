@@ -56,13 +56,6 @@ public class WatchmodeRepository {
                 // Deduplicate
                 platforms = deduplicatePlatforms(platforms);
 
-                Log.d("WMRepo", "Deduplicated platforms count: " + platforms.size());
-                // Optionally log a few names to verify
-                for (Platform p : platforms) Log.d("WMRepo", "Platform (deduped): " + p.getName());
-
-                Log.d("WMRepo", "Platforms: count=" + platforms.size());
-                for (Platform p : platforms) Log.d("WMRepo", "Platform=" + p.getName() + " logo=" + p.getLogo() + " region=" + p.getRegion());
-
                 cache.put(titleId, platforms);
                 callback.onSuccess(titleId, platforms);
             } catch (Exception e) {
@@ -107,11 +100,8 @@ public class WatchmodeRepository {
         String json = httpGet("https://api.watchmode.com/v1/title/" + titleId + "/sources/?apiKey=" + apiKey);
         // First, try object-with-sources
         try {
-            Log.d("WMRepo", "Sources fetch init");
             Type type = new TypeToken<TitleSourcesResponse>() {}.getType();
-            Log.d("WMRepo", "Type retrieved");
             TitleSourcesResponse resp = gson.fromJson(json, type);
-            Log.d("WMRepo", "GSON success");
             List<Platform> list = new ArrayList<>();
 
             if (resp != null && resp.sources != null) {
@@ -139,7 +129,6 @@ public class WatchmodeRepository {
         if (items != null) {
             for (TitleSourcesResponse.SourceItem s : items) {
                 String logo = logoCache.get(s.source_id);
-                Log.d("WMRepo", logo != null ? logo : "null" );
                 list.add(new Platform(
                         String.valueOf(s.source_id),
                         s.name,
@@ -155,9 +144,6 @@ public class WatchmodeRepository {
         Request req = new Request.Builder().url(url).build();
         try (Response res = http.newCall(req).execute()) {
             String body = res.body() != null ? res.body().string() : "";
-            // Print/log the raw response for debugging
-            Log.d("WMRepo", "HTTP GET " + url + " -> " + res.code() + " " + res.message());
-            Log.d("WMRepo", "WM response body: " + body);
             if (!res.isSuccessful()) throw new IOException("HTTP error " + res);
             return body;
         }

@@ -34,6 +34,7 @@
     <string name="cancel">Cancel</string>
     <string name="message_no_results">Oops, couldn\'t find any movies that matched your filter</string>
     <string name="message_no_reviews">Be the first to leave a review!</string>
+    <string name="message_no_movies">Add a movie to your list!</string>
     <string name="hint_review">What did you think?</string>
     <string name="submit">Submit</string>
     <string name="filter_add_review">Add review</string>

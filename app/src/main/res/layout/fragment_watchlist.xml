@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,6 +6,7 @@
     android:background="#FAFAFA"
     tools:context="com.moovie.WatchlistFragment">
 
+    <!-- Top App Bar -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/topAppBar"
         android:layout_width="match_parent"
@@ -17,47 +17,74 @@
         app:popupTheme="@style/Theme.AppCompat.Light.DarkActionBar"
         app:titleMarginStart="24dp"
         app:titleTextColor="@android:color/white"
-        app:title="Want to Watch" />
+        app:title="My Movies" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_movies"
+    <!-- Tabs for "Want to Watch" and "Watched" -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/topAppBar"
+        app:tabIndicatorColor="?attr/colorPrimary"
+        app:tabSelectedTextColor="?attr/colorPrimary"
+        app:tabTextColor="@color/greyDisabled"
+        app:tabMode="fixed"
+        app:tabGravity="fill" />
+
+    <!-- FrameLayout to stack ViewPager2 and Empty View -->
+    <FrameLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/topAppBar"
-        android:background="@android:color/transparent"
-        android:clipToPadding="false"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="16dp"
-        tools:listitem="@layout/item_movie_list" />
+        android:layout_below="@id/tabLayout">
 
-    <LinearLayout
-        android:id="@+id/view_empty"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/topAppBar"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp" />
 
-        <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:alpha="0.4"
-            android:layout_marginBottom="16dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_movie_placeholder" />
+        <LinearLayout
+            android:id="@+id/view_empty_ratings"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone"
+            android:padding="32dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="No movies to watch yet"
-            android:textColor="@color/greyDisabled"
-            android:textSize="16sp" />
+            <ImageView
+                android:src="@drawable/ic_movie_placeholder"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:alpha="0.7"
+                android:layout_marginBottom="20dp"
+                android:scaleType="centerInside" />
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/empty_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No movies yet!"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="20sp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/empty_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add some movies to your watchlist to get started."
+                android:textColor="@color/greyDisabled"
+                android:textSize="16sp"
+                android:textAlignment="center"
+                android:gravity="center" />
+        </LinearLayout>
+    </FrameLayout>
 
 </RelativeLayout>

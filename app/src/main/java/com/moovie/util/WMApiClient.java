@@ -1,4 +1,4 @@
-package com.moovie.data;
+package com.moovie.util;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
