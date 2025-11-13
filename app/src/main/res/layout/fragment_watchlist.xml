@@ -17,7 +17,7 @@
         app:popupTheme="@style/Theme.AppCompat.Light.DarkActionBar"
         app:titleMarginStart="24dp"
         app:titleTextColor="@android:color/white"
-        app:title="My Movies" />
+        app:title="My Moovies" />
 
     <!-- Tabs for "Want to Watch" and "Watched" -->
     <com.google.android.material.tabs.TabLayout
@@ -79,7 +79,7 @@
                 android:id="@+id/empty_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add some movies to your watchlist to get started."
+                android:text="Add some moovies to your watchlist to get started."
                 android:textColor="@color/greyDisabled"
                 android:textSize="16sp"
                 android:textAlignment="center"

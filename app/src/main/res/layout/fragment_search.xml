@@ -6,7 +6,7 @@
 
     <EditText
         android:id="@+id/searchInput"
-        android:hint="Search movies..."
+        android:hint="Search moovies..."
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

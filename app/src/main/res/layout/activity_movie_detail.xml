@@ -59,7 +59,7 @@
                 android:textSize="24sp"
                 android:maxLines="2"
                 android:ellipsize="end"
-                tools:text="Some Movie" />
+                tools:text="Some Moovie" />
 
             <!-- Rating Row -->
             <RelativeLayout
