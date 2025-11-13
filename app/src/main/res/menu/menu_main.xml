@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_sign_out"
-        android:title="@string/sign_out" />
+        android:id="@+id/menu_add_items"
+        android:title="Add Items"
+        android:icon="@android:drawable/ic_menu_add"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_search"
         android:title="Search"
-        android:icon="@drawable/ic_search_white_24px"
-        app:showAsAction="ifRoom|withText" />
+        android:icon="@android:drawable/ic_menu_search"
+        app:showAsAction="ifRoom" />
+
     <item
-        android:id="@+id/menu_profile"
-        android:title="@string/user_profile" />.
+        android:id="@+id/menu_sign_out"
+        android:title="Sign Out"
+        app:showAsAction="never" />
 
 </menu>
