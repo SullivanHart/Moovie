@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,10 +23,10 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".MainActivity" />
         <activity android:name=".MovieDetailActivity" />
         <activity android:name=".SearchActivity" />
         <activity android:name=".ProfileActivity" />
-        <activity android:name=".LoginActivity" />
     </application>
 
 </manifest>
