@@ -15,7 +15,7 @@ public class SignupActivity extends AppCompatActivity {
     private static final String TAG = "SignupActivity";
 
     private EditText emailInput, passwordInput;
-    private Button signupButton, resetPasswordButton;
+    private Button signupButton;
     private FirebaseAuth mAuth;
 
     @Override
@@ -28,10 +28,8 @@ public class SignupActivity extends AppCompatActivity {
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
         signupButton = findViewById(R.id.signupButton);
-        resetPasswordButton = findViewById(R.id.resetPasswordButton);
 
         signupButton.setOnClickListener(v -> signup());
-        resetPasswordButton.setOnClickListener(v -> resetPassword());
     }
 
     private void signup() {
@@ -54,23 +52,6 @@ public class SignupActivity extends AppCompatActivity {
                                 Toast.LENGTH_LONG).show();
                         Log.e(TAG, "Signup failed", task.getException());
                     }
-                });
-    }
-
-    private void resetPassword() {
-        String email = emailInput.getText().toString().trim();
-
-        if (email.isEmpty()) {
-            Toast.makeText(this, "Enter your email to reset password", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        mAuth.sendPasswordResetEmail(email)
-                .addOnSuccessListener(v ->
-                        Toast.makeText(this, "Password reset email sent", Toast.LENGTH_LONG).show())
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to send reset email: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    Log.e(TAG, "Reset password failed", e);
                 });
     }
 }
