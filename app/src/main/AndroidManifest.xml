@@ -26,7 +26,6 @@
         <activity android:name=".MainActivity" />
         <activity android:name=".MovieDetailActivity" />
         <activity android:name=".SearchActivity" />
-        <activity android:name=".ProfileActivity" />
     </application>
 
 </manifest>
