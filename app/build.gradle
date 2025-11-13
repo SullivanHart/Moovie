@@ -24,6 +24,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "API_KEY", "\"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4MWRmYjlmMjBjZTkyMGU3MTlhZTI2NzlmNDIwYmZlZCIsIm5iZiI6MTc2MTM2MDI1OC42MjksInN1YiI6IjY4ZmMzOTgyNTQyMjlkYzc2M2NjZDY5OSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.T_LnhGBaAnpkJH540MxZ_qmsiJVUNGUnWxmvhglfF_Y\""
         }
     }
 }

@@ -11,15 +11,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.firebase.ui.auth.AuthUI;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.moovie.adapter.MovieAdapter;
 import com.moovie.model.Movie;
 import com.moovie.util.FirebaseUtil;
@@ -31,15 +31,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 
-import java.util.Collections;
-
 public class MainActivity extends AppCompatActivity implements
         View.OnClickListener,
         FilterDialogFragment.FilterListener,
         MovieAdapter.OnMovieSelectedListener {
 
     private static final String TAG = "MainActivity";
-    private static final int RC_SIGN_IN = 9001;
     private static final int LIMIT = 50;
 
     private Toolbar mToolbar;
@@ -61,13 +58,10 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialize Firebase
-        FirebaseApp.initializeApp(this);
-
-        if (FirebaseApp.getApps(this).isEmpty()) {
-            Log.e(TAG, "Firebase is not initialized correctly.");
-        } else {
-            Log.d(TAG, "Firebase initialized successfully.");
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
         }
 
         mToolbar = findViewById(R.id.toolbar);
@@ -130,12 +124,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onStart() {
         super.onStart();
-
-        if (shouldStartSignIn()) {
-            startSignIn();
-            return;
-        }
-
         onFilter(mViewModel.getFilters());
 
         if (mAdapter != null) {
@@ -148,14 +136,6 @@ public class MainActivity extends AppCompatActivity implements
         super.onStop();
         if (mAdapter != null) {
             mAdapter.stopListening();
-        }
-    }
-
-    private void onAddItemsClicked() {
-        CollectionReference movies = mFirestore.collection("movies");
-        for (int i = 0; i < 10; i++) {
-            Movie movie = MovieUtil.getRandom(this);
-            movies.add(movie);
         }
     }
 
@@ -197,12 +177,10 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_add_items:
-                onAddItemsClicked();
-                break;
             case R.id.menu_sign_out:
-                FirebaseUtil.getAuthUI().signOut(this);
-                startSignIn();
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(this, LoginActivity.class));
+                finish();
                 break;
             case R.id.menu_search:
                 startActivity(new Intent(this, SearchActivity.class));
@@ -212,17 +190,6 @@ public class MainActivity extends AppCompatActivity implements
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_SIGN_IN) {
-            mViewModel.setIsSigningIn(false);
-            if (resultCode != RESULT_OK && shouldStartSignIn()) {
-                startSignIn();
-            }
-        }
     }
 
     @Override
@@ -243,20 +210,5 @@ public class MainActivity extends AppCompatActivity implements
         Intent intent = new Intent(this, MovieDetailActivity.class);
         intent.putExtra(MovieDetailActivity.KEY_MOVIE_ID, movie.getId());
         startActivity(intent);
-    }
-
-    private boolean shouldStartSignIn() {
-        return (!mViewModel.getIsSigningIn() && FirebaseUtil.getAuth().getCurrentUser() == null);
-    }
-
-    private void startSignIn() {
-        Intent intent = FirebaseUtil.getAuthUI()
-                .createSignInIntentBuilder()
-                .setAvailableProviders(Collections.singletonList(
-                        new AuthUI.IdpConfig.EmailBuilder().build()))
-                .setIsSmartLockEnabled(false)
-                .build();
-        startActivityForResult(intent, RC_SIGN_IN);
-        mViewModel.setIsSigningIn(true);
     }
 }

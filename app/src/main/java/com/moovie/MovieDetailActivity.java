@@ -25,6 +25,7 @@ import com.moovie.adapter.RatingAdapter;
 import com.moovie.model.Movie;
 import com.moovie.model.Rating;
 import com.moovie.util.FirebaseUtil;
+import com.moovie.util.ImageUtil;
 import com.moovie.util.MovieUtil;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -164,10 +165,18 @@ public class MovieDetailActivity extends AppCompatActivity
         mRatingIndicator.setRating((float) movie.getAvgRating());
         mNumRatingsView.setText(getString(R.string.fmt_num_ratings, movie.getNumRatings()));
 
-        Glide.with(mImageView.getContext())
-                .load(movie.getPosterUrl())
-                .into(mImageView);
+        String imageUrl = ImageUtil.buildImageUrl(movie.getPosterUrl());
+        if (imageUrl != null) {
+            Glide.with(mImageView.getContext())
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_movie_placeholder)
+                    .error(R.drawable.ic_movie_placeholder)
+                    .into(mImageView);
+        } else {
+            mImageView.setImageResource(R.drawable.ic_movie_placeholder);
+        }
     }
+
 
     public void onBackArrowClicked(View view) {
         onBackPressed();
