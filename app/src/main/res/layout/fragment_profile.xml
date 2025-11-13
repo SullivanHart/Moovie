@@ -9,14 +9,17 @@
     tools:context=".ProfileFragment">
 
 
-    <!-- Top App Bar with Back Button -->
+    <!-- Top App Bar -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/topAppBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
-        app:navigationIcon="@drawable/ic_arrow_back"
+        android:theme="@style/AppTheme"
+        app:logo="@drawable/ic_cow_white_24dp"
+        app:popupTheme="@style/Theme.AppCompat.Light.DarkActionBar"
+        app:titleMarginStart="24dp"
+        app:titleTextColor="@android:color/white"
         app:title="Profile" />
 
     <!-- Scrollable Content -->
