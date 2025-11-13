@@ -91,7 +91,7 @@
                 android:textColor="#FFFFFF"
                 android:paddingLeft="24dp"
                 android:paddingRight="24dp"
-                android:visibility="gone" />
+                android:visibility="visible" />
 
         </LinearLayout>
     </ScrollView>

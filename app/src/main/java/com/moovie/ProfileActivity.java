@@ -2,17 +2,17 @@ package com.moovie;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -22,6 +22,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private TextView nameTextView, emailTextView, bioTextView;
     private ImageView profileImageView;
+    private Button editButton;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
@@ -34,20 +35,34 @@ public class ProfileActivity extends AppCompatActivity {
         // Toolbar setup with back button
         MaterialToolbar toolbar = findViewById(R.id.topAppBar);
         toolbar.setNavigationOnClickListener(v -> {
-            // Navigate back to MainActivity
             Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             finish();
         });
 
+        // Initialize views
         nameTextView = findViewById(R.id.text_name);
         emailTextView = findViewById(R.id.text_email);
         bioTextView = findViewById(R.id.text_bio);
+        editButton = findViewById(R.id.button_edit_profile);
+
+        // Firebase init
         mAuth = FirebaseAuth.getInstance();
         mFirestore = FirebaseFirestore.getInstance();
 
+        // Load user info
         loadUserProfile();
+
+        // Show the edit button only for logged-in users
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            editButton.setVisibility(View.VISIBLE);
+        } else {
+            editButton.setVisibility(View.GONE);
+        }
+
+        editButton.setOnClickListener(v -> showEditProfileDialog());
     }
 
     private void loadUserProfile() {
@@ -75,22 +90,53 @@ public class ProfileActivity extends AppCompatActivity {
         // Additional info from Firestore: /users/{uid}
         mFirestore.collection("users").document(uid)
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
-                            String bio = documentSnapshot.getString("bio");
-                            String username = documentSnapshot.getString("username");
-                            String image = documentSnapshot.getString("imageUrl");
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String bio = documentSnapshot.getString("bio");
+                        String username = documentSnapshot.getString("username");
 
-                            if (username != null) nameTextView.setText(username);
-                            if (bio != null) bioTextView.setText(bio);
-                            if (image != null)
-                                Glide.with(ProfileActivity.this).load(image).into(profileImageView);
-                        } else {
-                            bioTextView.setText("No profile info found");
-                        }
+                        if (username != null) nameTextView.setText(username);
+                        if (bio != null) bioTextView.setText(bio);
+                    } else {
+                        bioTextView.setText("No profile info found");
                     }
                 });
+    }
+
+    private void showEditProfileDialog() {
+        // Inflate a custom layout for the dialog
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_profile, null);
+
+        EditText editUsername = dialogView.findViewById(R.id.edit_username);
+        EditText editBio = dialogView.findViewById(R.id.edit_bio);
+
+        // Pre-fill with current values
+        editUsername.setText(nameTextView.getText().toString());
+        editBio.setText(bioTextView.getText().toString());
+
+        // Build the AlertDialog
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Edit Profile")
+                .setView(dialogView)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    String newUsername = editUsername.getText().toString().trim();
+                    String newBio = editBio.getText().toString().trim();
+
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    if (user != null) {
+                        mFirestore.collection("users").document(user.getUid())
+                                .update("username", newUsername, "bio", newBio)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show();
+                                    nameTextView.setText(newUsername);
+                                    bioTextView.setText(newBio);
+                                })
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(this, "Failed to update profile", Toast.LENGTH_SHORT).show()
+                                );
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 }
