@@ -1,5 +1,6 @@
 package com.moovie;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -21,6 +22,8 @@ import com.moovie.model.Movie;
 import com.moovie.model.TMDBResponse;
 import com.moovie.util.ApiClient;
 import com.moovie.util.ApiService;
+import com.moovie.util.FirebaseUtil;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
@@ -28,14 +31,16 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SearchFragment extends Fragment {
+public class SearchFragment extends Fragment implements ApiMovieAdapter.OnMovieSelectedListener {
 
-    private static final String API_KEY = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4MWRmYjlmMjBjZTkyMGU3MTlhZTI2NzlmNDIwYmZlZCIsIm5iZiI6MTc2MTM2MDI1OC42MjksInN1YiI6IjY4ZmMzOTgyNTQyMjlkYzc2M2NjZDY5OSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.T_LnhGBaAnpkJH540MxZ_qmsiJVUNGUnWxmvhglfF_Y";
+    private static final String TAG = "SearchFragment";
+    private static final String API_KEY = BuildConfig.TMDB_API_KEY;
 
     private EditText searchInput;
     private RecyclerView recyclerView;
     private ApiMovieAdapter apiMovieAdapter;
     private ApiService apiService;
+    private FirebaseFirestore mFirestore;
 
     @Nullable
     @Override
@@ -49,8 +54,12 @@ public class SearchFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        apiMovieAdapter = new ApiMovieAdapter();
+        // Pass 'this' as listener to handle movie selection
+        apiMovieAdapter = new ApiMovieAdapter(this);
         recyclerView.setAdapter(apiMovieAdapter);
+
+        // Initialize Firestore
+        mFirestore = FirebaseUtil.getFirestore();
 
         apiService = ApiClient.getClient().create(ApiService.class);
 
@@ -95,7 +104,7 @@ public class SearchFragment extends Fragment {
         call.enqueue(new Callback<TMDBResponse>() {
             @Override
             public void onResponse(Call<TMDBResponse> call, Response<TMDBResponse> response) {
-                Log.d( "SearchFragment", response.raw().toString() );
+                Log.d(TAG, response.raw().toString());
                 if (response.isSuccessful() && response.body() != null) {
                     List<Movie> movies = response.body().getResults();
                     if (movies.isEmpty()) {
@@ -113,5 +122,51 @@ public class SearchFragment extends Fragment {
                 Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onMovieSelected(Movie movie) {
+        // Save movie to Firebase and navigate to detail activity
+        saveMovieToFirebase(movie);
+    }
+
+    private void saveMovieToFirebase(Movie movie) {
+        // Initialize rating fields if not set
+        if (movie.getNumRatings() == 0) {
+            movie.setNumRatings(0);
+            movie.setAvgRating(0.0);
+        }
+
+        // Check if movie already exists by TMDB ID
+        mFirestore.collection("movies")
+                .whereEqualTo("tmdbId", movie.getTmdbId())
+                .limit(1)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult().size() > 0) {
+                        // Movie already exists, open it
+                        String movieId = task.getResult().getDocuments().get(0).getId();
+                        openMovieDetail(movieId);
+                    } else {
+                        // New movie, add it to Firebase
+                        mFirestore.collection("movies")
+                                .add(movie)
+                                .addOnSuccessListener(documentReference -> {
+                                    String movieId = documentReference.getId();
+                                    openMovieDetail(movieId);
+                                    Log.d(TAG, "Movie saved with ID: " + movieId);
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Error saving movie", e);
+                                    Toast.makeText(getContext(), "Error adding movie", Toast.LENGTH_SHORT).show();
+                                });
+                    }
+                });
+    }
+
+    private void openMovieDetail(String movieId) {
+        Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+        intent.putExtra(MovieDetailActivity.KEY_MOVIE_ID, movieId);
+        startActivity(intent);
     }
 }
