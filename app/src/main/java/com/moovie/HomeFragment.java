@@ -144,7 +144,9 @@ public class HomeFragment extends Fragment implements
     public void onStart() {
         super.onStart();
         if (shouldStartSignIn()) {
-            startSignIn();
+            Intent intent = new Intent(getActivity(), LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
             return;
         }
         onFilter(mViewModel.getFilters());
@@ -173,38 +175,6 @@ public class HomeFragment extends Fragment implements
         mViewModel.setFilters(filters);
     }
 
-    // 6. This is how you handle the menu in a Fragment
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_main, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_sign_out:
-                FirebaseUtil.getAuthUI().signOut(getContext());
-                startSignIn();
-                break;
-            case R.id.menu_search:
-                startActivity(new Intent(getActivity(), SearchActivity.class));
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_SIGN_IN) {
-            mViewModel.setIsSigningIn(false);
-            if (resultCode != getActivity().RESULT_OK && shouldStartSignIn()) {
-                startSignIn();
-            }
-        }
-    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -229,19 +199,4 @@ public class HomeFragment extends Fragment implements
     private boolean shouldStartSignIn() {
         return (!mViewModel.getIsSigningIn() && FirebaseUtil.getAuth().getCurrentUser() == null);
     }
-
-    private void startSignIn() {
-        Intent intent = FirebaseUtil.getAuthUI()
-                .createSignInIntentBuilder()
-                .setAvailableProviders(Collections.singletonList(
-                        new AuthUI.IdpConfig.EmailBuilder().build()))
-                .setIsSmartLockEnabled(false)
-                .build();
-        startActivityForResult(intent, RC_SIGN_IN);
-        mViewModel.setIsSigningIn(true);
-    }
-
-  //  public void setFilterListener(Filter.FilterListener listener) {
-  //      mListener = listener;
-    // }
 }
