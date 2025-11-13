@@ -34,7 +34,7 @@ import retrofit2.Response;
 public class SearchFragment extends Fragment implements ApiMovieAdapter.OnMovieSelectedListener {
 
     private static final String TAG = "SearchFragment";
-    private static final String API_KEY = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4MWRmYjlmMjBjZTkyMGU3MTlhZTI2NzlmNDIwYmZlZCIsIm5iZiI6MTc2MTM2MDI1OC42MjksInN1YiI6IjY4ZmMzOTgyNTQyMjlkYzc2M2NjZDY5OSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.T_LnhGBaAnpkJH540MxZ_qmsiJVUNGUnWxmvhglfF_Y";
+    private static final String API_KEY = BuildConfig.TMDB_API_KEY;
 
     private EditText searchInput;
     private RecyclerView recyclerView;
