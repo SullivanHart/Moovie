@@ -1,214 +1,32 @@
 package com.moovie;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.text.Html;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import android.os.Bundle;
 
-import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
-import com.moovie.adapter.MovieAdapter;
-import com.moovie.model.Movie;
-import com.moovie.util.FirebaseUtil;
-import com.moovie.util.MovieUtil;
-import com.moovie.viewmodel.MainActivityViewModel;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 
-public class MainActivity extends AppCompatActivity implements
-        View.OnClickListener,
-        FilterDialogFragment.FilterListener,
-        MovieAdapter.OnMovieSelectedListener {
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-    private static final String TAG = "MainActivity";
-    private static final int LIMIT = 50;
-
-    private Toolbar mToolbar;
-    private TextView mCurrentSearchView;
-    private TextView mCurrentSortByView;
-    private RecyclerView mMoviesRecycler;
-    private ViewGroup mEmptyView;
-
-    private FirebaseFirestore mFirestore;
-    private Query mQuery;
-
-    private FilterDialogFragment mFilterDialog;
-    private MovieAdapter mAdapter;
-
-    private MainActivityViewModel mViewModel;
+// THIS IS THE NEW, SIMPLE MAINACTIVITY
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // This links to your NEW layout file: activity_main.xml
         setContentView(R.layout.activity_main);
 
-        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-            return;
-        }
+        BottomNavigationView navView = findViewById(R.id.bottom_nav_view);
 
-        mToolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
 
-        mCurrentSearchView = findViewById(R.id.text_current_search);
-        mCurrentSortByView = findViewById(R.id.text_current_sort_by);
-        mMoviesRecycler = findViewById(R.id.recycler_movies);
-        mEmptyView = findViewById(R.id.view_empty);
+        NavController navController = navHostFragment.getNavController();
 
-        findViewById(R.id.filter_bar).setOnClickListener(this);
-        findViewById(R.id.button_clear_filter).setOnClickListener(this);
-
-        mViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
-
-        FirebaseFirestore.setLoggingEnabled(true);
-        mFirestore = FirebaseUtil.getFirestore();
-
-        // Default query: top-rated movies
-        mQuery = mFirestore.collection("movies")
-                .orderBy(Movie.FIELD_AVG_RATING, Query.Direction.DESCENDING)
-                .limit(LIMIT);
-
-        initRecyclerView();
-
-        // Filter dialog
-        mFilterDialog = new FilterDialogFragment();
-    }
-
-    private void initRecyclerView() {
-        if (mQuery == null) {
-            Log.w(TAG, "No query, not initializing RecyclerView");
-            return;
-        }
-
-        mAdapter = new MovieAdapter(mQuery, this) {
-            @Override
-            protected void onDataChanged() {
-                if (getItemCount() == 0) {
-                    mMoviesRecycler.setVisibility(View.GONE);
-                    mEmptyView.setVisibility(View.VISIBLE);
-                } else {
-                    mMoviesRecycler.setVisibility(View.VISIBLE);
-                    mEmptyView.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            protected void onError(FirebaseFirestoreException e) {
-                Snackbar.make(findViewById(android.R.id.content),
-                        "Error: check logs for info.", Snackbar.LENGTH_LONG).show();
-            }
-        };
-
-        mMoviesRecycler.setLayoutManager(new LinearLayoutManager(this));
-        mMoviesRecycler.setAdapter(mAdapter);
-        Log.d(TAG, "initRecyclerView()");
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        onFilter(mViewModel.getFilters());
-
-        if (mAdapter != null) {
-            mAdapter.startListening();
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mAdapter != null) {
-            mAdapter.stopListening();
-        }
-    }
-
-    @Override
-    public void onFilter(Filters filters) {
-        Log.d(TAG, "onFilter()");
-
-        Query query = mFirestore.collection("movies");
-
-        if (filters.hasGenre()) {
-            query = query.whereEqualTo("genre", filters.getGenre());
-        }
-
-        if (filters.hasReleaseYear()) {
-            query = query.whereEqualTo("releaseYear", filters.getReleaseYear());
-        }
-
-        if (filters.hasSortBy()) {
-            query = query.orderBy(filters.getSortBy(), filters.getSortDirection());
-        }
-
-        query = query.limit(LIMIT);
-
-        mQuery = query;
-        mAdapter.setQuery(query);
-
-        mCurrentSearchView.setText(Html.fromHtml(filters.getSearchDescription(this)));
-        mCurrentSortByView.setText(filters.getOrderDescription(this));
-
-        mViewModel.setFilters(filters);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_sign_out:
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(this, LoginActivity.class));
-                finish();
-                break;
-            case R.id.menu_search:
-                startActivity(new Intent(this, SearchActivity.class));
-                break;
-            case R.id.menu_profile:
-                startActivity(new Intent(this, ProfileActivity.class));
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.filter_bar:
-                mFilterDialog.show(getSupportFragmentManager(), FilterDialogFragment.TAG);
-                break;
-            case R.id.button_clear_filter:
-                mFilterDialog.resetFilters();
-                onFilter(Filters.getDefault());
-                break;
-        }
-    }
-
-    @Override
-    public void onMovieSelected(DocumentSnapshot movie) {
-        Intent intent = new Intent(this, MovieDetailActivity.class);
-        intent.putExtra(MovieDetailActivity.KEY_MOVIE_ID, movie.getId());
-        startActivity(intent);
+        // This line connects the nav bar to the navigation graph
+        NavigationUI.setupWithNavController(navView, navController);
     }
 }

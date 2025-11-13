@@ -27,6 +27,7 @@ public class RatingDialogFragment extends DialogFragment implements View.OnClick
     private MaterialRatingBar mRatingBar;
     private EditText mRatingText;
 
+    private FilterDialogFragment.FilterListener mListener;
     interface RatingListener {
         void onRating(Rating rating);
     }
