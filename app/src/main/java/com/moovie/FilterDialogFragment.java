@@ -81,9 +81,9 @@ public class FilterDialogFragment extends DialogFragment implements View.OnClick
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof FilterListener) {
-            mFilterListener = (FilterListener) context;
-        }
+        // if (context instanceof FilterListener) {
+        //     mListener = (FilterListener) context;
+        // }
     }
 
     @Override
@@ -101,6 +101,7 @@ public class FilterDialogFragment extends DialogFragment implements View.OnClick
         switch (v.getId()) {
             case R.id.button_search:
                 if (mFilterListener != null) {
+                    // Call getFilters() to get the filters
                     mFilterListener.onFilter(getFilters());
                 }
                 dismiss();
@@ -164,5 +165,9 @@ public class FilterDialogFragment extends DialogFragment implements View.OnClick
             filters.setSortDirection(getSortDirection());
         }
         return filters;
+    }
+
+    public void setFilterListener(FilterListener listener) {
+        mFilterListener = listener;
     }
 }
