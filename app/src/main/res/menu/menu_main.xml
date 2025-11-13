@@ -15,5 +15,8 @@
         android:title="Search"
         android:icon="@drawable/ic_search_white_24px"
         app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/menu_profile"
+        android:title="@string/user_profile" />.
 
 </menu>

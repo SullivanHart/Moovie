@@ -207,6 +207,9 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.menu_search:
                 startActivity(new Intent(this, SearchActivity.class));
                 break;
+            case R.id.menu_profile:
+                startActivity(new Intent(this, ProfileActivity.class));
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
