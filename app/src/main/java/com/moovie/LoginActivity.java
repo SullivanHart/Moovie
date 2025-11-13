@@ -31,6 +31,12 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseUtil.getAuth();
         mFirestore = FirebaseUtil.getFirestore();
 
+        // Check if user is already logged in
+        if (mAuth.getCurrentUser() != null) {
+            navigateToMain();
+            return;
+        }
+
         emailInput = findViewById(R.id.emailInput);
         passwordInput = findViewById(R.id.passwordInput);
 
@@ -99,11 +105,10 @@ public class LoginActivity extends AppCompatActivity {
         userRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (!task.getResult().exists()) {
-                    // Create user document for first-time users
                     userRef.set(new UserProfile(userId))
                             .addOnSuccessListener(aVoid -> {
                                 Log.d(TAG, "User document created: " + userId);
-                                updateUI(user);
+                                navigateToMain();
                             })
                             .addOnFailureListener(e -> {
                                 Log.e(TAG, "Error creating user document", e);
@@ -111,22 +116,19 @@ public class LoginActivity extends AppCompatActivity {
                                         "Error initializing user", Toast.LENGTH_SHORT).show();
                             });
                 } else {
-                    // User already exists
                     Log.d(TAG, "User document already exists: " + userId);
-                    updateUI(user);
+                    navigateToMain();
                 }
             } else {
                 Log.e(TAG, "Error checking user document", task.getException());
-                updateUI(user); // Still proceed to MainActivity
+                navigateToMain();
             }
         });
     }
 
-    private void updateUI(FirebaseUser user) {
-        if (user != null) {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
+    private void navigateToMain() {
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
