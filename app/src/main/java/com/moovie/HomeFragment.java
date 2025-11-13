@@ -157,14 +157,6 @@ public class HomeFragment extends Fragment implements
         if (mAdapter != null) mAdapter.stopListening();
     }
 
-    private void onAddItemsClicked() {
-        CollectionReference movies = mFirestore.collection("movies");
-        for (int i = 0; i < 10; i++) {
-            Movie movie = MovieUtil.getRandom(getContext());
-            movies.add(movie);
-        }
-    }
-
     @Override
     public void onFilter(Filters filters) {
         Query query = mFirestore.collection("movies");
@@ -191,9 +183,6 @@ public class HomeFragment extends Fragment implements
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_add_items:
-                onAddItemsClicked();
-                break;
             case R.id.menu_sign_out:
                 FirebaseUtil.getAuthUI().signOut(getContext());
                 startSignIn();
