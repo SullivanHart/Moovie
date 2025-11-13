@@ -6,6 +6,10 @@
         android:icon="@android:drawable/ic_dialog_map" android:title="Home" />
 
     <item
+        android:id="@+id/nav_swipe"
+        android:icon="@android:drawable/ic_swipe_add" android:title="Swipe" />
+
+    <item
         android:id="@+id/nav_watchlist"
         android:icon="@android:drawable/ic_menu_save" android:title="Watchlist" />
 
