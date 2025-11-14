@@ -9,7 +9,7 @@
     <string name="label_sort_by">Sort By</string>
 
     <string name="fmt_num_ratings" translatable="false">(%d)</string>
-    <string name="all_movies">All Movies</string>
+    <string name="all_movies">All Moovies</string>
     <string name="header_filters">Filter</string>
     <string name="search">Search</string>
 
@@ -21,17 +21,20 @@
     <string name="sorted_by_popularity">sorted by popularity</string>
     <string name="sorted_by_release_year">sorted by release year</string>
 
-    <string name="movie_poster">Movie poster image</string>
+    <string name="platform_logo">Platform logo</string>
 
-    <string name="add_random_items">Add Random Movies</string>
+    <string name="movie_poster">Moovie poster image</string>
+
+    <string name="add_random_items">Add Random Moovies</string>
     <string name="sign_out">Sign Out</string>
     <string name="user_profile">User Profile</string>
     <string name="delete_all">Delete All</string>
     <string name="divider_bullet">•</string>
     <string name="apply">Apply</string>
     <string name="cancel">Cancel</string>
-    <string name="message_no_results">Oops, couldn\'t find any movies that matched your filter</string>
+    <string name="message_no_results">Oops, couldn\'t find any moovies that matched your filter</string>
     <string name="message_no_reviews">Be the first to leave a review!</string>
+    <string name="message_no_movies">Add a moovie to your list!</string>
     <string name="hint_review">What did you think?</string>
     <string name="submit">Submit</string>
     <string name="filter_add_review">Add review</string>
