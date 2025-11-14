@@ -56,41 +56,74 @@ public class RatingFragment extends Fragment implements MovieAdapter.OnMovieSele
         return view;
     }
 
+    // In RatingFragment.java
+
     private void loadUnratedWatchedMovies() {
+        // 1. Ensure the user is logged in
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            Log.e(TAG, "Cannot load movies, user is not signed in.");
+            mRecycler.setVisibility(View.GONE);
+            mEmptyView.setVisibility(View.VISIBLE);
+            mEmptyView.setText("Please sign in to see your unrated movies.");
+            return;
+        }
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // Task to get all rated movie IDs
-        Task<QuerySnapshot> ratedTask = mFirestore.collection("users").document(userId)
-                .collection("ratings").get();
-
-        // Task to get all watched movie IDs (assuming from a 'watchlist' collection)
-        Task<QuerySnapshot> watchlistTask = mFirestore.collection("users").document(userId)
-                .collection("watchlist").get();
-
-        Tasks.whenAllSuccess(ratedTask, watchlistTask).addOnSuccessListener(results -> {
-            // 1. Get IDs from results
-            Set<String> ratedMovieIds = new HashSet<>();
-            for (DocumentSnapshot doc : (QuerySnapshot) results.get(0)) {
-                ratedMovieIds.add(doc.getId());
+        // 2. Get the entire user document which contains the watchlist and rated_movies_sorted arrays
+        mFirestore.collection("users").document(userId).get().addOnSuccessListener(userDoc -> {
+            if (!userDoc.exists()) {
+                Log.e(TAG, "User document does not exist.");
+                mEmptyView.setVisibility(View.VISIBLE);
+                return;
             }
 
-            List<String> watchedMovieIds = new ArrayList<>();
-            for (DocumentSnapshot doc : (QuerySnapshot) results.get(1)) {
-                watchedMovieIds.add(doc.getId());
-            }
+            // 3. Extract the arrays of DocumentReferences from the user document
+            // Make sure the field names "watchlist" and "rated_movies_sorted" match your Firestore exactly!
+            List<com.google.firebase.firestore.DocumentReference> watchedRefs =
+                    (List<com.google.firebase.firestore.DocumentReference>) userDoc.get("watchlist");
 
-            // 2. Find the difference: watched but not rated
-            watchedMovieIds.removeAll(ratedMovieIds);
+            List<com.google.firebase.firestore.DocumentReference> ratedRefs =
+                    (List<com.google.firebase.firestore.DocumentReference>) userDoc.get("rated_movies_sorted");
 
-            // 3. Create a query for the unrated movies
-            if (watchedMovieIds.isEmpty()) {
+            // Handle cases where lists might be null (user hasn't watched/rated anything yet)
+            if (watchedRefs == null || watchedRefs.isEmpty()) {
+                Log.d(TAG, "User has no movies in their watchlist.");
                 mRecycler.setVisibility(View.GONE);
                 mEmptyView.setVisibility(View.VISIBLE);
                 return;
             }
 
-            // Firestore 'whereIn' queries are limited to 10 items. We'll show the first 10.
-            List<String> unratedIdsToShow = watchedMovieIds.subList(0, Math.min(10, watchedMovieIds.size()));
+            // 4. Get the String IDs from the DocumentReferences
+            Set<String> watchedMovieIds = new HashSet<>();
+            for (com.google.firebase.firestore.DocumentReference ref : watchedRefs) {
+                watchedMovieIds.add(ref.getId());
+            }
+
+            if (ratedRefs != null) {
+                Set<String> ratedMovieIds = new HashSet<>();
+                for (com.google.firebase.firestore.DocumentReference ref : ratedRefs) {
+                    ratedMovieIds.add(ref.getId());
+                }
+                // Find the difference: watched but not rated
+                watchedMovieIds.removeAll(ratedMovieIds);
+            }
+
+            // 5. Create and run the query for the unrated movies
+            if (watchedMovieIds.isEmpty()) {
+                Log.d(TAG, "All watched movies have been rated.");
+                mRecycler.setVisibility(View.GONE);
+                mEmptyView.setVisibility(View.VISIBLE);
+                mEmptyView.setText("You've rated all your watched movies!");
+                return;
+            }
+
+            // Convert the Set to a List for the 'whereIn' query
+            List<String> unratedIdsToShow = new ArrayList<>(watchedMovieIds);
+
+            // Handle Firestore's 30-item limit for 'whereIn' queries
+            if (unratedIdsToShow.size() > 30) {
+                unratedIdsToShow = unratedIdsToShow.subList(0, 30);
+            }
 
             Query unratedMoviesQuery = mFirestore.collection("movies")
                     .whereIn(com.google.firebase.firestore.FieldPath.documentId(), unratedIdsToShow);
@@ -113,8 +146,15 @@ public class RatingFragment extends Fragment implements MovieAdapter.OnMovieSele
             if (mAdapter != null) {
                 mAdapter.startListening();
             }
-        }).addOnFailureListener(e -> Log.e(TAG, "Failed to load movies", e));
+
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Failed to load user document", e);
+            // This is where your PERMISSION_DENIED error was being thrown
+            mEmptyView.setText("Error: " + e.getMessage());
+            mEmptyView.setVisibility(View.VISIBLE);
+        });
     }
+
 
     @Override
     public void onMovieSelected(DocumentSnapshot movie) {
