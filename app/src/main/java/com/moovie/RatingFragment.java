@@ -1,64 +1,144 @@
 package com.moovie;
 
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link RatingFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class RatingFragment extends Fragment {
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.moovie.adapter.MovieAdapter;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-    public RatingFragment() {
-        // Required empty public constructor
+public class RatingFragment extends Fragment implements MovieAdapter.OnMovieSelectedListener {
+
+    private static final String TAG = "RatingFragment";
+
+    private FirebaseFirestore mFirestore;
+    private RecyclerView mRecycler;
+    private TextView mEmptyView;
+    private MovieAdapter mAdapter;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_rating, container, false);
+
+        mRecycler = view.findViewById(R.id.recycler_unrated_movies);
+        mEmptyView = view.findViewById(R.id.view_empty_unrated);
+
+        // Initialize Firestore
+        mFirestore = FirebaseFirestore.getInstance();
+
+        // Setup RecyclerView
+        mRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        loadUnratedWatchedMovies();
+
+        return view;
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment RatingFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static RatingFragment newInstance(String param1, String param2) {
-        RatingFragment fragment = new RatingFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    private void loadUnratedWatchedMovies() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        // Task to get all rated movie IDs
+        Task<QuerySnapshot> ratedTask = mFirestore.collection("users").document(userId)
+                .collection("ratings").get();
+
+        // Task to get all watched movie IDs (assuming from a 'watchlist' collection)
+        Task<QuerySnapshot> watchlistTask = mFirestore.collection("users").document(userId)
+                .collection("watchlist").get();
+
+        Tasks.whenAllSuccess(ratedTask, watchlistTask).addOnSuccessListener(results -> {
+            // 1. Get IDs from results
+            Set<String> ratedMovieIds = new HashSet<>();
+            for (DocumentSnapshot doc : (QuerySnapshot) results.get(0)) {
+                ratedMovieIds.add(doc.getId());
+            }
+
+            List<String> watchedMovieIds = new ArrayList<>();
+            for (DocumentSnapshot doc : (QuerySnapshot) results.get(1)) {
+                watchedMovieIds.add(doc.getId());
+            }
+
+            // 2. Find the difference: watched but not rated
+            watchedMovieIds.removeAll(ratedMovieIds);
+
+            // 3. Create a query for the unrated movies
+            if (watchedMovieIds.isEmpty()) {
+                mRecycler.setVisibility(View.GONE);
+                mEmptyView.setVisibility(View.VISIBLE);
+                return;
+            }
+
+            // Firestore 'whereIn' queries are limited to 10 items. We'll show the first 10.
+            List<String> unratedIdsToShow = watchedMovieIds.subList(0, Math.min(10, watchedMovieIds.size()));
+
+            Query unratedMoviesQuery = mFirestore.collection("movies")
+                    .whereIn(com.google.firebase.firestore.FieldPath.documentId(), unratedIdsToShow);
+
+            mAdapter = new MovieAdapter(unratedMoviesQuery, this) {
+                @Override
+                protected void onDataChanged() {
+                    super.onDataChanged();
+                    if (getItemCount() == 0) {
+                        mRecycler.setVisibility(View.GONE);
+                        mEmptyView.setVisibility(View.VISIBLE);
+                    } else {
+                        mRecycler.setVisibility(View.VISIBLE);
+                        mEmptyView.setVisibility(View.GONE);
+                    }
+                }
+            };
+
+            mRecycler.setAdapter(mAdapter);
+            if (mAdapter != null) {
+                mAdapter.startListening();
+            }
+        }).addOnFailureListener(e -> Log.e(TAG, "Failed to load movies", e));
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public void onMovieSelected(DocumentSnapshot movie) {
+        // When a movie is clicked, open the detail activity
+        Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+        intent.putExtra(MovieDetailActivity.KEY_MOVIE_ID, movie.getId());
+        startActivity(intent);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Start listening for Firestore updates
+        if (mAdapter != null) {
+            mAdapter.startListening();
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_rating, container, false);
+    public void onStop() {
+        super.onStop();
+        // Stop listening for Firestore updates
+        if (mAdapter != null) {
+            mAdapter.stopListening();
+        }
     }
 }
