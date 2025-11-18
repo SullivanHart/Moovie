@@ -10,6 +10,10 @@
         android:icon="@android:drawable/ic_menu_save" android:title="Watchlist" />
 
     <item
+        android:id="@+id/nav_theater"
+        android:icon="@drawable/ic_theaters" android:title="Theaters" />
+
+    <item
         android:id="@+id/nav_profile"
         android:icon="@android:drawable/ic_dialog_info" android:title="Profile" />
 
