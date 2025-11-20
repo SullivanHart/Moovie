@@ -158,7 +158,8 @@ public class RatingPageFragment extends Fragment {
         MovieListItem item = movie.toObject(MovieListItem.class);
         if (item != null) {
              Intent intent = new Intent(getContext(), MovieDetailActivity.class);
-             intent.putExtra(MovieDetailActivity.KEY_MOVIE_ID, String.valueOf(item.getTmdbId()));
+             // Passed movie.getId() instead of tmdbId to ensure we use the document ID
+             intent.putExtra(MovieDetailActivity.KEY_MOVIE_ID, movie.getId());
              startActivity(intent);
         }
     }

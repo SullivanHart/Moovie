@@ -15,8 +15,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.moovie.model.Rating;
 import com.moovie.util.FirebaseUtil;
 
-import me.zhanghai.android.materialratingbar.MaterialRatingBar;
-
 /**
  * Dialog Fragment containing rating form.
  */
@@ -24,10 +22,8 @@ public class RatingDialogFragment extends DialogFragment implements View.OnClick
 
     public static final String TAG = "RatingDialog";
 
-    private MaterialRatingBar mRatingBar;
     private EditText mRatingText;
 
-    private FilterDialogFragment.FilterListener mListener;
     interface RatingListener {
         void onRating(Rating rating);
     }
@@ -40,7 +36,6 @@ public class RatingDialogFragment extends DialogFragment implements View.OnClick
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.dialog_rating, container, false);
-        mRatingBar = v.findViewById(R.id.restaurant_form_rating);
         mRatingText = v.findViewById(R.id.restaurant_form_text);
 
         // Set listeners for buttons
@@ -81,13 +76,13 @@ public class RatingDialogFragment extends DialogFragment implements View.OnClick
         }
     }
 
-    // Called when the submit button is clicked (defined in XML)
     public void onSubmitClicked(View view) {
         FirebaseAuth auth = FirebaseUtil.getAuth();
         if (auth.getCurrentUser() != null) {
+            // Pass -1 as rating to indicate it needs to be calculated
             Rating rating = new Rating(
                     auth.getCurrentUser(),
-                    mRatingBar.getRating(),
+                    -1.0, 
                     mRatingText.getText().toString());
 
             if (mRatingListener != null) {
@@ -95,13 +90,9 @@ public class RatingDialogFragment extends DialogFragment implements View.OnClick
             }
 
             dismiss();
-        } else {
-            // Handle the case where the user is not logged in
-            // For example, show a message or log an error
         }
     }
 
-    // Called when the cancel button is clicked (defined in XML)
     public void onCancelClicked(View view) {
         dismiss();
     }
