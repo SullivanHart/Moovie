@@ -17,21 +17,31 @@ android {
 
         multiDexEnabled true
         vectorDrawables.useSupportLibrary true
+        
+        // Help with ANR issues
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildFeatures {
         buildConfig = true
         viewBinding true
     }
+    
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     buildTypes {
         debug {
             buildConfigField "String", "TMDB_API_KEY", "\"${getLocalProperty('TMDB_API_KEY')}\""
+            buildConfigField "String", "MAPS_API_KEY", "\"${getLocalProperty('MAPS_API_KEY')}\""
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            buildConfigField "String", "TMDB_API_KEY", "\"${getLocalProperty('API_KEY')}\""
+            buildConfigField "String", "TMDB_API_KEY", "\"${getLocalProperty('TMDB_API_KEY')}\""
+            buildConfigField "String", "MAPS_API_KEY", "\"${getLocalProperty('MAPS_API_KEY')}\""
         }
     }
 }
@@ -49,34 +59,38 @@ def getLocalProperty(String key) {
 
 dependencies {
     // --- Firebase ---
-    implementation 'com.google.firebase:firebase-firestore:23.0.3'
-    implementation 'com.google.firebase:firebase-auth:21.0.1'
+    implementation 'com.google.firebase:firebase-firestore:24.10.0'
+    implementation 'com.google.firebase:firebase-auth:22.3.1'
 
     // --- FirebaseUI ---
-    implementation 'com.firebaseui:firebase-ui-auth:8.0.0'
+    implementation 'com.firebaseui:firebase-ui-auth:8.0.2'
 
     // --- Google Play Services ---
-    implementation 'com.google.android.gms:play-services-auth:21.2.0'
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
     implementation 'com.google.android.gms:play-services-maps:18.2.0'
-    implementation 'com.google.android.gms:play-services-location:21.2.0'
-    implementation 'com.google.android.libraries.places:places:3.4.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'com.google.android.libraries.places:places:3.3.0'
 
     // --- Support Libs ---
-    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.browser:browser:1.0.0'
-    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.browser:browser:1.7.0'
+    implementation 'com.google.android.material:material:1.10.0'
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
 
     // --- Architecture components ---
-    implementation 'androidx.lifecycle:lifecycle-runtime:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime:2.7.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.navigation:navigation-fragment:2.9.6'
-    implementation 'androidx.navigation:navigation-ui:2.9.6'
+    implementation 'androidx.navigation:navigation-fragment:2.7.5'
+    implementation 'androidx.navigation:navigation-ui:2.7.5'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    annotationProcessor 'androidx.lifecycle:lifecycle-compiler:2.3.1'
+    annotationProcessor 'androidx.lifecycle:lifecycle-compiler:2.7.0'
+    
+    // --- Coroutines for better async handling ---
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3'
 
     // --- Third-party ---
     implementation 'me.zhanghai.android.materialratingbar:library:1.4.0'

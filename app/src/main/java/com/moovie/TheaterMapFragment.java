@@ -60,7 +60,7 @@ public class TheaterMapFragment extends Fragment implements OnMapReadyCallback {
         // Initialize Places
         if (!Places.isInitialized()) {
             // Use requireActivity().getApplicationContext() for context
-            Places.initialize(requireActivity().getApplicationContext(), "${MAPS_API_KEY}");
+            Places.initialize(requireActivity().getApplicationContext(), BuildConfig.MAPS_API_KEY);
         }
         // Use requireActivity() for context
         placesClient = Places.createClient(requireActivity());
