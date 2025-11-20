@@ -9,6 +9,7 @@ public class MovieListItem {
     private String posterUrl;
     private long addedAt;
     private boolean ranked;
+    private int rankIndex;
 
     public MovieListItem() {
     }
@@ -19,6 +20,7 @@ public class MovieListItem {
         this.posterUrl = movie.getPosterUrl();
         this.addedAt = System.currentTimeMillis();
         this.ranked = false;
+        this.rankIndex = -1;
     }
 
     public int getTmdbId() { return tmdbId; }
@@ -35,4 +37,7 @@ public class MovieListItem {
 
     public boolean isRanked() { return ranked; }
     public void setRanked(boolean ranked) { this.ranked = ranked; }
+
+    public int getRankIndex() { return rankIndex; }
+    public void setRankIndex(int rankIndex) { this.rankIndex = rankIndex; }
 }

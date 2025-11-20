@@ -19,8 +19,6 @@
         app:titleTextColor="@android:color/white"
         app:title="My Moovies" />
 
-
-    <!-- You can reuse the Recycler you used in MovieDetailActivity here -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_user_ratings"
         android:layout_width="0dp"
