@@ -4,18 +4,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.tabs.TabLayout;
 import com.moovie.adapter.MovieListAdapter;
 import com.moovie.adapter.RankedMovieAdapter;
 import com.moovie.model.MovieListItem;
@@ -35,7 +33,7 @@ public class RatingPageFragment extends Fragment {
     private Query mUnratedQuery;
     private Query mRankedQuery;
 
-    private MaterialToolbar mToolbar;
+    private TabLayout mTabLayout;
     private boolean isShowingUnrated = true;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -46,16 +44,27 @@ public class RatingPageFragment extends Fragment {
         String userId = FirebaseUtil.getAuth().getCurrentUser().getUid();
         
         mRecyclerView = root.findViewById(R.id.recycler_user_ratings);
-        mToolbar = root.findViewById(R.id.topAppBar);
+        mTabLayout = root.findViewById(R.id.tabLayout);
 
-        // Setup Toolbar
-        mToolbar.inflateMenu(R.menu.menu_rating);
-        mToolbar.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_switch_view) {
-                toggleView();
-                return true;
+        // Setup Tabs
+        mTabLayout.addTab(mTabLayout.newTab().setText("Unrated"));
+        mTabLayout.addTab(mTabLayout.newTab().setText("Ranked"));
+
+        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 0) {
+                    showUnratedMovies();
+                } else {
+                    showRankedMovies();
+                }
             }
-            return false;
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
         });
 
         // Query for Unrated Movies
@@ -96,14 +105,6 @@ public class RatingPageFragment extends Fragment {
         return root;
     }
 
-    private void toggleView() {
-        if (isShowingUnrated) {
-            showRankedMovies();
-        } else {
-            showUnratedMovies();
-        }
-    }
-
     private void showUnratedMovies() {
         isShowingUnrated = true;
         if (mRankedAdapter != null) mRankedAdapter.stopListening();
@@ -111,10 +112,6 @@ public class RatingPageFragment extends Fragment {
         
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         mRecyclerView.setAdapter(mUnratedAdapter);
-        mToolbar.setTitle("Unrated Movies");
-        
-        // Update menu icon or text if needed, e.g. to "Show Ranked"
-        // For now, the same icon toggles.
     }
 
     private void showRankedMovies() {
@@ -124,7 +121,6 @@ public class RatingPageFragment extends Fragment {
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setAdapter(mRankedAdapter);
-        mToolbar.setTitle("My Rankings");
     }
 
     @Override
@@ -162,8 +158,6 @@ public class RatingPageFragment extends Fragment {
         MovieListItem item = movie.toObject(MovieListItem.class);
         if (item != null) {
              Intent intent = new Intent(getContext(), MovieDetailActivity.class);
-             // We need to pass the document ID of the movie in the "movies" collection.
-             // Assuming item.getTmdbId() corresponds to the document ID in "movies"
              intent.putExtra(MovieDetailActivity.KEY_MOVIE_ID, String.valueOf(item.getTmdbId()));
              startActivity(intent);
         }
