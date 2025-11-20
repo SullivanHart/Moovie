@@ -12,16 +12,13 @@
         android:layout_marginBottom="8dp"
         android:text="@string/filter_add_review" />
 
-    <me.zhanghai.android.materialratingbar.MaterialRatingBar
-        android:id="@+id/restaurant_form_rating"
-        style="@style/Widget.MaterialRatingBar.RatingBar"
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
-        android:maxHeight="24dp"
-        android:minHeight="24dp" />
+        android:text="Your rating will be calculated based on your ranked list."
+        android:textColor="@color/greySecondary"
+        android:layout_marginBottom="16dp" />
 
     <EditText
         android:id="@+id/restaurant_form_text"
