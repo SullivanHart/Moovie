@@ -12,4 +12,11 @@ public interface ApiService {
             @Header("Authorization") String bearerToken,
             @Query("query") String query
     );
+
+    @GET("discover/movie")
+    Call<TMDBResponse> discoverMovies(
+            @Header("Authorization") String auth,
+            @Query("page") int page
+    );
+
 }

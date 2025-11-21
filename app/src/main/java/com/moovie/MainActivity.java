@@ -16,8 +16,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-
         // This links to your NEW layout file: activity_main.xml
         setContentView(R.layout.activity_main);
 

@@ -86,6 +86,10 @@ public class ApiMovieAdapter extends RecyclerView.Adapter<ApiMovieAdapter.MovieV
         notifyDataSetChanged();
     }
 
+    public List<Movie> getMovies() {
+        return movies;
+    }
+
     static class MovieViewHolder extends RecyclerView.ViewHolder {
         ImageView poster;
         TextView title, year;

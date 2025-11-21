@@ -12,6 +12,12 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
+        android:id="@id/nav_swipe"
+        android:name="com.moovie.SwipeFragment"
+        android:label="Swipe"
+        tools:layout="@layout/fragment_swipe" />
+  
+    <fragment
         android:id="@+id/nav_rating"
         android:name="com.moovie.RatingPageFragment"
         android:label="Ratings"
