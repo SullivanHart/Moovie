@@ -1,6 +1,7 @@
 package com.moovie;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -358,16 +359,65 @@ public class MovieDetailActivity extends AppCompatActivity
 
     @Override
     public void onRating(Rating rating) {
-        if (FirebaseUtil.getAuth().getCurrentUser() != null) {
-            Log.d(TAG, "User is signed in: " + FirebaseUtil.getAuth().getCurrentUser().getUid());
-        } else {
-            Log.w(TAG, "No signed-in user!");
+        if (rating.getRating() != -1.0) {
+            // Already has a rating (legacy or explicit)
+            addRating(mMovieRef, rating);
+            return;
         }
 
-        Log.d(TAG, "Attempting to add rating for movie: " + mMovieRef.getId());
-        Log.d(TAG, "Rating value: " + rating.getRating());
+        // Need to calculate rating based on rank
+        mUserRef.collection("watched").whereEqualTo("ranked", true).get()
+            .addOnSuccessListener(querySnapshot -> {
+                int totalRanked = querySnapshot.size();
+                
+                // Check if this movie is in the list
+                DocumentSnapshot movieDoc = null;
+                for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                    // We are matching by document ID (which is movie ID)
+                    if (doc.getId().equals(mMovieRef.getId())) {
+                        movieDoc = doc;
+                        break;
+                    }
+                }
 
-        addRating(mMovieRef, rating);
+                if (movieDoc == null) {
+                    Snackbar.make(findViewById(android.R.id.content),
+                            "Please rank this movie first in the Ratings tab.", Snackbar.LENGTH_LONG)
+                            .setAction("Go", v -> {
+                                // Optional: Navigate to Ranking logic
+                            }).show();
+                    return;
+                }
+
+                MovieListItem item = movieDoc.toObject(MovieListItem.class);
+                if (item == null) return;
+
+                int rankIndex = item.getRankIndex(); // 0-based
+                
+                // Calculate percentile (0-based calculation so 0/5 = 0.0 = top)
+                double percentile = (double) rankIndex / (double) totalRanked;
+                
+                double calculatedRating = 0.5;
+                if (percentile <= 0.1) calculatedRating = 5.0;
+                else if (percentile <= 0.2) calculatedRating = 4.5;
+                else if (percentile <= 0.3) calculatedRating = 4.0;
+                else if (percentile <= 0.4) calculatedRating = 3.5;
+                else if (percentile <= 0.5) calculatedRating = 3.0;
+                else if (percentile <= 0.6) calculatedRating = 2.5;
+                else if (percentile <= 0.7) calculatedRating = 2.0;
+                else if (percentile <= 0.8) calculatedRating = 1.5;
+                else calculatedRating = 1.0;
+                
+                Log.d(TAG, "Calculated rating: " + calculatedRating + " (Rank: " + (rankIndex+1) + "/" + totalRanked + ", Perc: " + percentile + ")");
+                
+                rating.setRating(calculatedRating);
+                addRating(mMovieRef, rating);
+
+            })
+            .addOnFailureListener(e -> {
+                Log.e(TAG, "Error fetching rankings for calculation", e);
+                Toast.makeText(this, "Failed to calculate rating", Toast.LENGTH_SHORT).show();
+            });
     }
 
     private void hideKeyboard() {
