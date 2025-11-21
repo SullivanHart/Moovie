@@ -81,7 +81,11 @@ public class HomeFragment extends Fragment implements
         mViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
 
         mFirestore = FirebaseUtil.getFirestore();
+
+        // Only load movies that have at least 1 review
         mQuery = mFirestore.collection("movies")
+                .whereGreaterThanOrEqualTo("numRatings", 1)                // Movies with 1+ reviews
+                .orderBy("numRatings", Query.Direction.DESCENDING)         // REQUIRED first orderBy
                 .orderBy(Movie.FIELD_AVG_RATING, Query.Direction.DESCENDING)
                 .limit(LIMIT);
 

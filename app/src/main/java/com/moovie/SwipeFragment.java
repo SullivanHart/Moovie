@@ -117,7 +117,6 @@ public class SwipeFragment extends Fragment implements ApiMovieAdapter.OnMovieSe
                                   @NonNull RecyclerView.ViewHolder target) {
                 return false;
             }
-
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder vh, int direction) {
 
@@ -125,27 +124,57 @@ public class SwipeFragment extends Fragment implements ApiMovieAdapter.OnMovieSe
 
                 if (direction == ItemTouchHelper.RIGHT) {
 
-                    // ===== Add to watched (same as your toggleWatched code) =====
                     String uid = FirebaseUtil.getAuth().getUid();
 
-                    firestore.collection("users")
-                            .document(uid)
-                            .collection("watched")
-                            .document(String.valueOf(current.getTmdbId()))
-                            .set(new MovieListItem(current))
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(getContext(), "Added to Watched", Toast.LENGTH_SHORT).show();
-                                Log.d(TAG, "Movie added to watched list");
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e(TAG, "Error adding to watched", e);
-                                Toast.makeText(getContext(), "Error saving", Toast.LENGTH_SHORT).show();
+                    // First: make sure the movie exists in /movies (just like toggleWatched)
+                    firestore.collection("movies")
+                            .whereEqualTo("tmdbId", current.getTmdbId())
+                            .limit(1)
+                            .get()
+                            .addOnSuccessListener(task -> {
+
+                                // Will contain Firestore doc ID for the movie
+                                final String movieDocId;
+
+                                if (task.getDocuments().size() > 0) {
+
+                                    // Movie already exists
+                                    movieDocId = task.getDocuments().get(0).getId();
+
+                                } else {
+
+                                    // Movie does not exist — create it
+                                    movieDocId = firestore.collection("movies")
+                                            .document()
+                                            .getId();
+
+                                    firestore.collection("movies")
+                                            .document(movieDocId)
+                                            .set(current);
+                                }
+
+                                // Now reference watched entry just like toggleWatched:
+                                DocumentReference watchedRef = firestore.collection("users")
+                                        .document(uid)
+                                        .collection("watched")
+                                        .document(movieDocId);
+
+                                watchedRef.set(new MovieListItem(current))
+                                        .addOnSuccessListener(unused -> {
+                                            Toast.makeText(getContext(), "Added to Watched", Toast.LENGTH_SHORT).show();
+                                            Log.d(TAG, "Movie added to watched list");
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e(TAG, "Error adding to watched", e);
+                                            Toast.makeText(getContext(), "Error saving", Toast.LENGTH_SHORT).show();
+                                        });
                             });
                 }
 
-                // ALWAYS load the next random movie (both left + right swipes)
+                // Always load the next movie
                 loadRandomMovie();
             }
+
 
         }).attachToRecyclerView(recyclerView);
     }
