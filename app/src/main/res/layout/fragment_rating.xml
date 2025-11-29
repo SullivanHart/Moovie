@@ -17,7 +17,7 @@
         app:popupTheme="@style/Theme.AppCompat.Light.DarkActionBar"
         app:titleMarginStart="24dp"
         app:titleTextColor="@android:color/white"
-        app:title="My Moovies" />
+        app:title="My Rated Moovies" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
