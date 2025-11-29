@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +31,7 @@ public class ProfileFragment extends Fragment {
     private ImageView profileImageView;
     private Button editButton;
     private Button buttonSignOut;
+    private ImageButton buttonDeleteAccount;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
@@ -56,7 +58,7 @@ public class ProfileFragment extends Fragment {
         bioTextView = view.findViewById(R.id.text_bio);
         editButton = view.findViewById(R.id.button_edit_profile);
         buttonSignOut = view.findViewById(R.id.button_sign_out);
-
+        buttonDeleteAccount = view.findViewById(R.id.button_delete_account);
 
         // Set toolbar title
         toolbar.setTitle("Profile");
@@ -76,6 +78,7 @@ public class ProfileFragment extends Fragment {
 
         editButton.setOnClickListener(v -> showEditProfileDialog());
         buttonSignOut.setOnClickListener(v -> signOut());
+        buttonDeleteAccount.setOnClickListener(v -> deleteAccount());
 
         return view;
     }
@@ -148,6 +151,52 @@ public class ProfileFragment extends Fragment {
                 .setNegativeButton("Cancel", null)
                 .show();
     }
+
+    private void deleteAccount() {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Delete Account")
+                .setMessage("Are you sure you want to delete your account?\nThis action cannot be undone.")
+                .setPositiveButton("Yes", (dialog, which) -> performAccountDeletion())
+                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .create()
+                .show();
+    }
+
+    private void performAccountDeletion() {
+        FirebaseUser user = mAuth.getCurrentUser();
+
+        if (user != null) {
+            String uid = user.getUid();
+
+            // Step 1: Delete Firestore document
+            mFirestore.collection("users").document(uid)
+                    .delete()
+                    .addOnSuccessListener(aVoid -> {
+                        // Step 2: Delete authentication user
+                        user.delete()
+                                .addOnSuccessListener(unused -> {
+                                    Toast.makeText(getContext(),
+                                            "Account fully deleted", Toast.LENGTH_SHORT).show();
+                                    signOut();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(getContext(),
+                                            "Failed to delete authentication: " + e.getMessage(),
+                                            Toast.LENGTH_LONG).show();
+                                });
+
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(getContext(),
+                                "Failed to delete account data: " + e.getMessage(),
+                                Toast.LENGTH_LONG).show();
+                    });
+
+        } else {
+            Toast.makeText(getContext(), "No user signed in", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     private void signOut() {
         mAuth.signOut();

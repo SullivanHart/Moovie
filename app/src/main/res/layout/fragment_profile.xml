@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     android:background="#FAFAFA"
     tools:context=".ProfileFragment">
-
 
     <!-- Top App Bar -->
     <com.google.android.material.appbar.MaterialToolbar
@@ -101,13 +100,28 @@
                 android:id="@+id/button_sign_out"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sign Out"
                 android:backgroundTint="#F44336"
-                android:textColor="#FFFFFF"
                 android:paddingLeft="24dp"
                 android:paddingRight="24dp"
+                android:text="Sign Out"
+                android:textColor="#FFFFFF"
                 android:visibility="visible" />
 
         </LinearLayout>
     </ScrollView>
-</LinearLayout>
+
+    <!-- Delete Account Button (Red) -->
+    <ImageButton
+        android:id="@+id/button_delete_account"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="24dp"
+        android:backgroundTint="#F44336"
+        android:background="@drawable/rounded_red_button"
+        android:padding="12dp"
+        android:contentDescription="Delete Account"
+        android:src="@drawable/outline_auto_delete_24" />
+
+</RelativeLayout>
