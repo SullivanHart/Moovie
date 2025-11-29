@@ -1,6 +1,7 @@
 package com.moovie.model;
 
 import com.google.firebase.firestore.IgnoreExtraProperties;
+import com.moovie.util.GenreUtil;
 
 @IgnoreExtraProperties
 public class MovieListItem {
@@ -10,6 +11,7 @@ public class MovieListItem {
     private long addedAt;
     private boolean ranked;
     private int rankIndex;
+    private String genre; // Add genre field
 
     public MovieListItem() {
     }
@@ -18,6 +20,24 @@ public class MovieListItem {
         this.tmdbId = movie.getTmdbId();
         this.title = movie.getTitle();
         this.posterUrl = movie.getPosterUrl();
+
+        // Debug logging
+        android.util.Log.d("MovieListItem", "Creating MovieListItem for: " + movie.getTitle());
+        android.util.Log.d("MovieListItem", "  genre field: " + movie.getGenre());
+        android.util.Log.d("MovieListItem", "  genre_ids: " + movie.getGenreIds());
+
+        // Convert genre_ids to genre name
+        if (movie.getGenreIds() != null && !movie.getGenreIds().isEmpty()) {
+            this.genre = GenreUtil.getPrimaryGenre(movie.getGenreIds());
+            android.util.Log.d("MovieListItem", "  Converted to genre: " + this.genre);
+        } else if (movie.getGenre() != null) {
+            // Fallback if genre is already set
+            this.genre = movie.getGenre();
+            android.util.Log.d("MovieListItem", "  Using existing genre: " + this.genre);
+        } else {
+            android.util.Log.d("MovieListItem", "  No genre data available!");
+        }
+
         this.addedAt = System.currentTimeMillis();
         this.ranked = false;
         this.rankIndex = -1;
@@ -40,4 +60,7 @@ public class MovieListItem {
 
     public int getRankIndex() { return rankIndex; }
     public void setRankIndex(int rankIndex) { this.rankIndex = rankIndex; }
+
+    public String getGenre() { return genre; }
+    public void setGenre(String genre) { this.genre = genre; }
 }

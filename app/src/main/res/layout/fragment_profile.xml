@@ -26,7 +26,8 @@
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="24dp">
+        android:layout_below="@id/topAppBar"
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -83,7 +84,200 @@
                 android:padding="8dp"
                 android:layout_marginBottom="24dp" />
 
-            <!-- Optional Edit Button -->
+            <!-- Stats Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="4dp"
+                app:cardCornerRadius="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Stats Title -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Your Stats"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Stats Grid -->
+                    <GridLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:columnCount="2"
+                        android:rowCount="3">
+
+                        <!-- Movies Watched -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:id="@+id/stats_movies_watched"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="32sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorPrimary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Movies Watched"
+                                android:textSize="12sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+
+                        <!-- Movies Ranked -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:id="@+id/stats_movies_ranked"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="32sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorPrimary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Movies Ranked"
+                                android:textSize="12sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+
+                        <!-- Want to Watch -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:id="@+id/stats_want_to_watch"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="32sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorPrimary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Want to Watch"
+                                android:textSize="12sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+
+                        <!-- Percentage Seen -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:id="@+id/stats_percentage_seen"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0%"
+                                android:textSize="24sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorPrimary" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="DB Seen"
+                                android:textSize="12sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+
+                        <!-- Top Genre (spans 2 columns) -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:layout_columnSpan="2"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:id="@+id/stats_top_genre"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="N/A"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="?attr/colorPrimary"
+                                android:maxLines="1"
+                                android:ellipsize="end" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Top Genre"
+                                android:textSize="12sp"
+                                android:textColor="?android:attr/textColorSecondary" />
+                        </LinearLayout>
+
+                    </GridLayout>
+
+                    <!-- Genre Breakdown -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#E0E0E0"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Genre Breakdown"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/stats_genre_breakdown"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Add movies to see breakdown"
+                        android:textSize="13sp"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:lineSpacingExtra="4dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Edit Profile Button -->
             <Button
                 android:id="@+id/button_edit_profile"
                 android:layout_width="wrap_content"
@@ -93,26 +287,28 @@
                 android:textColor="#FFFFFF"
                 android:paddingLeft="24dp"
                 android:paddingRight="24dp"
+                android:layout_marginBottom="12dp"
                 android:visibility="visible" />
 
-            <!-- Sign Out Button (Red) -->
+            <!-- Delete Account Button -->
             <Button
-                android:id="@+id/button_sign_out"
+                android:id="@+id/button_delete_account"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#F44336"
                 android:paddingLeft="24dp"
                 android:paddingRight="24dp"
-                android:text="Sign Out"
+                android:text="Delete Account"
                 android:textColor="#FFFFFF"
+                android:layout_marginBottom="80dp"
                 android:visibility="visible" />
 
         </LinearLayout>
     </ScrollView>
 
-    <!-- Delete Account Button (Red) -->
+    <!-- Sign Out Button -->
     <ImageButton
-        android:id="@+id/button_delete_account"
+        android:id="@+id/button_sign_out"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_alignParentBottom="true"
@@ -122,6 +318,7 @@
         android:background="@drawable/rounded_red_button"
         android:padding="12dp"
         android:contentDescription="Delete Account"
-        android:src="@drawable/outline_auto_delete_24" />
+        android:textColor="#FFFFFF"
+        android:src="@drawable/ic_logout" />
 
 </RelativeLayout>

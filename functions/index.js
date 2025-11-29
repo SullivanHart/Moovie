@@ -7,19 +7,20 @@ const db = admin.firestore();
 exports.updateMovieAverageRank = onDocumentWritten(
   "users/{userId}/watched/{watchedDocId}",
   async (event) => {
+    const startTime = Date.now();
     console.log("=== FUNCTION TRIGGERED ===");
     console.log("User ID:", event.params.userId);
     console.log("Watched Doc ID:", event.params.watchedDocId);
-    
+
     // Get the tmdbId from the document data (NOT the document ID)
     const afterData = event.data?.after?.data();
     const beforeData = event.data?.before?.data();
-    
+
     console.log("After data:", afterData);
     console.log("Before data:", beforeData);
-    
+
     const tmdbId = afterData?.tmdbId || beforeData?.tmdbId;
-    
+
     if (!tmdbId) {
       console.error("❌ No tmdbId found in document data. Cannot proceed.");
       return null;
@@ -30,12 +31,12 @@ exports.updateMovieAverageRank = onDocumentWritten(
     try {
       // STEP 1: Query all watched documents across all users with this tmdbId
       console.log(`\n=== QUERYING collectionGroup('watched') for tmdbId=${tmdbId} ===`);
-      
+
       const snapshot = await db
         .collectionGroup("watched")
         .where("tmdbId", "==", tmdbId)
         .get();
-      
+
       console.log(`✓ Query returned ${snapshot.size} documents`);
 
       // STEP 2: Collect all rankings for this movie
@@ -44,12 +45,13 @@ exports.updateMovieAverageRank = onDocumentWritten(
 
       snapshot.forEach((doc) => {
         const data = doc.data();
-        console.log(`  - Doc ${doc.id}: rankIndex=${data.rankIndex}, title="${data.title}"`);
+        console.log(`  - Doc ${doc.id}: rankIndex=${data.rankIndex}, ranked=${data.ranked}, title="${data.title}"`);
 
-        if (typeof data.rankIndex === "number") {
+        // Only include movies that are ranked (ranked=true) and have a valid rankIndex
+        if (data.ranked === true && typeof data.rankIndex === "number" && data.rankIndex >= 0) {
           rankings.push(data.rankIndex);
         } else {
-          console.log(`    ⚠️ Skipping - rankIndex is ${data.rankIndex}`);
+          console.log(`    ⚠️ Skipping - not ranked or invalid rankIndex`);
         }
       });
 
@@ -64,11 +66,11 @@ exports.updateMovieAverageRank = onDocumentWritten(
 
       // STEP 4: Get all user lists to determine percentile
       console.log("\n=== CALCULATING PERCENTILE ===");
-      
+
       // Get total count of watched movies across all users to establish context
       const allWatchedSnapshot = await db.collectionGroup("watched").get();
       const allRankings = [];
-      
+
       allWatchedSnapshot.forEach((doc) => {
         const data = doc.data();
         if (typeof data.rankIndex === "number") {
@@ -78,14 +80,14 @@ exports.updateMovieAverageRank = onDocumentWritten(
 
       // Sort rankings (lower rankIndex = better ranking = higher percentile)
       allRankings.sort((a, b) => a - b);
-      
+
       console.log(`Total movies ranked across all users: ${allRankings.length}`);
       console.log(`This movie's avg rankIndex: ${avgRankIndex}`);
 
       // Find percentile (what % of movies are ranked worse than this one)
       const worseCount = allRankings.filter(rank => rank > avgRankIndex).length;
       const percentile = allRankings.length > 0 ? (worseCount / allRankings.length) * 100 : 0;
-      
+
       console.log(`Movies ranked worse: ${worseCount}/${allRankings.length}`);
       console.log(`Percentile: ${percentile.toFixed(1)}%`);
 
@@ -100,7 +102,7 @@ exports.updateMovieAverageRank = onDocumentWritten(
       // 95-98% = 1.5 stars
       // 98-100% = 1 star
       // Bottom 0-2% = 0.5 stars
-      
+
       let starRating;
       if (percentile >= 90) {
         starRating = 5.0;
@@ -128,7 +130,7 @@ exports.updateMovieAverageRank = onDocumentWritten(
 
       // STEP 3: Find the movie document with this tmdbId
       console.log(`\n=== FINDING movie document with tmdbId=${tmdbId} ===`);
-      
+
       const movieQuery = await db
         .collection("movies")
         .where("tmdbId", "==", tmdbId)
@@ -170,6 +172,9 @@ exports.updateMovieAverageRank = onDocumentWritten(
         numRankings: verifyData.numRankings,
         percentile: verifyData.percentile
       });
+
+      const executionTime = Date.now() - startTime;
+      console.log(`\n⏱️ Total execution time: ${executionTime}ms`);
 
       return null;
 

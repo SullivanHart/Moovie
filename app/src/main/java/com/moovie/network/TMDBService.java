@@ -13,4 +13,10 @@ public interface TMDBService {
             @Query("query") String query,
             @Query("include_adult") boolean includeAdult
     );
+
+    @GET("discover/movie")
+    Call<TMDBResponse> getTotalMovies(
+            @Query("api_key") String apiKey
+    );
+
 }
