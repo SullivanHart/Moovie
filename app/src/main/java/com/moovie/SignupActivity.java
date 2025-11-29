@@ -9,6 +9,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -44,6 +49,26 @@ public class SignupActivity extends AppCompatActivity {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            String uid = user.getUid();
+
+                            Map<String, Object> profile = new HashMap<>();
+                            profile.put("userId", uid);
+                            profile.put("username", ""); // empty until user edits it
+                            profile.put("bio", "");      // empty default
+                            profile.put("createdAt", System.currentTimeMillis());
+
+                            FirebaseFirestore.getInstance()
+                                    .collection("users")
+                                    .document(uid)
+                                    .set(profile)
+                                    .addOnSuccessListener(aVoid ->
+                                            Log.d(TAG, "User profile created in Firestore"))
+                                    .addOnFailureListener(e ->
+                                            Log.e(TAG, "Failed to create Firestore profile", e));
+                        }
+
                         Toast.makeText(this, "Account created successfully", Toast.LENGTH_LONG).show();
                         finish(); // back to login
                     } else {
