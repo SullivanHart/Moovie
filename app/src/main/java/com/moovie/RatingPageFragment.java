@@ -10,17 +10,18 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.moovie.adapter.MovieListAdapter;
 import com.moovie.adapter.RankedMovieAdapter;
 import com.moovie.model.MovieListItem;
 import com.moovie.util.FirebaseUtil;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 
 public class RatingPageFragment extends Fragment {
 
@@ -35,132 +36,180 @@ public class RatingPageFragment extends Fragment {
 
     private TabLayout mTabLayout;
     private boolean isShowingUnrated = true;
+    private String userId;
 
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+
         View root = inflater.inflate(R.layout.fragment_rating, container, false);
 
         mFirestore = FirebaseUtil.getFirestore();
-        String userId = FirebaseUtil.getAuth().getCurrentUser().getUid();
-        
+        userId = FirebaseUtil.getAuth().getCurrentUser().getUid();
+
         mRecyclerView = root.findViewById(R.id.recycler_user_ratings);
         mTabLayout = root.findViewById(R.id.tabLayout);
 
-        // Setup Tabs
+        setupTabs();
+        initQueries();
+        initAdapters();
+
+        // Default to Unrated
+        showUnratedMovies();
+
+        return root;
+    }
+
+    /* -------------------- SETUP -------------------- */
+
+    private void setupTabs() {
         mTabLayout.addTab(mTabLayout.newTab().setText("Unrated"));
         mTabLayout.addTab(mTabLayout.newTab().setText("Ranked"));
 
         mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                if (tab.getPosition() == 0) {
-                    showUnratedMovies();
-                } else {
-                    showRankedMovies();
-                }
+            @Override public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 0) showUnratedMovies();
+                else showRankedMovies();
             }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
+    }
 
-        // Query for Unrated Movies
+    private void initQueries() {
         mUnratedQuery = mFirestore.collection("users")
                 .document(userId)
                 .collection("watched")
                 .whereEqualTo("ranked", false);
 
-        // Query for Ranked Movies
         mRankedQuery = mFirestore.collection("users")
                 .document(userId)
                 .collection("watched")
                 .whereEqualTo("ranked", true)
                 .orderBy("rankIndex", Query.Direction.ASCENDING);
+    }
 
-        // Initialize Adapters
+    private void initAdapters() {
+        // Unrated
         mUnratedAdapter = new MovieListAdapter(mUnratedQuery, this::onUnratedMovieSelected) {
-             @Override
-            protected void onDataChanged() {
+            @Override protected void onDataChanged() {
                 if (isShowingUnrated && getItemCount() == 0) {
                     Log.d(TAG, "No unrated movies found.");
                 }
             }
         };
 
+        // Ranked
         mRankedAdapter = new RankedMovieAdapter(mRankedQuery, this::onRankedMovieSelected) {
-            @Override
-            protected void onDataChanged() {
-                 if (!isShowingUnrated && getItemCount() == 0) {
+            @Override protected void onDataChanged() {
+                if (!isShowingUnrated && getItemCount() == 0) {
                     Log.d(TAG, "No ranked movies found.");
                 }
             }
         };
-
-        // Set default view (Unrated)
-        showUnratedMovies();
-
-        return root;
     }
+
+    /* -------------------- TAB HANDLERS -------------------- */
 
     private void showUnratedMovies() {
         isShowingUnrated = true;
+
         if (mRankedAdapter != null) mRankedAdapter.stopListening();
-        if (mUnratedAdapter != null) mUnratedAdapter.startListening();
-        
+        mUnratedAdapter.startListening();
+
         mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         mRecyclerView.setAdapter(mUnratedAdapter);
     }
 
+    /**
+     * Ensures rankIndex is always 0-based and matches current sorted order.
+     */
     private void showRankedMovies() {
         isShowingUnrated = false;
-        if (mUnratedAdapter != null) mUnratedAdapter.stopListening();
-        if (mRankedAdapter != null) mRankedAdapter.startListening();
 
+        if (mUnratedAdapter != null) mUnratedAdapter.stopListening();
+
+        mRankedAdapter.startListening();
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setAdapter(mRankedAdapter);
+
+        // === DRAG HANDLER ===
+        ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
+            @Override
+            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
+                return makeMovementFlags(dragFlags, 0); // no swipe
+            }
+
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
+                int fromPos = viewHolder.getBindingAdapterPosition();
+                int toPos = target.getBindingAdapterPosition();
+                mRankedAdapter.onItemMove(fromPos, toPos);
+                return true;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                // We do NOT use swipe delete here.
+            }
+
+            @Override
+            public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                super.clearView(recyclerView, viewHolder);
+
+                // Save new order
+                mRankedAdapter.updateRankIndexes();
+
+                // Refresh to avoid duplicate & stale items
+                recyclerView.post(() -> {
+                    mRankedAdapter.stopListening();
+                    mRankedAdapter.startListening();
+                });
+            }
+        };
+
+        ItemTouchHelper helper = new ItemTouchHelper(callback);
+        helper.attachToRecyclerView(mRecyclerView);
     }
+
+
+
+    /* -------------------- LIFECYCLE -------------------- */
 
     @Override
     public void onStart() {
         super.onStart();
-        if (isShowingUnrated && mUnratedAdapter != null) {
-            mUnratedAdapter.startListening();
-        } else if (!isShowingUnrated && mRankedAdapter != null) {
-            mRankedAdapter.startListening();
-        }
+        if (isShowingUnrated) mUnratedAdapter.startListening();
+        else mRankedAdapter.startListening();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (mUnratedAdapter != null) {
-            mUnratedAdapter.stopListening();
-        }
-        if (mRankedAdapter != null) {
-            mRankedAdapter.stopListening();
-        }
+        mUnratedAdapter.stopListening();
+        mRankedAdapter.stopListening();
     }
 
-    public void onUnratedMovieSelected(DocumentSnapshot movie) {
+    /* -------------------- CLICK EVENTS -------------------- */
+
+    private void onUnratedMovieSelected(DocumentSnapshot movie) {
         MovieListItem item = movie.toObject(MovieListItem.class);
         if (item != null) {
-            // Go to RankingActivity
             Intent intent = new Intent(getContext(), RankingActivity.class);
             intent.putExtra(RankingActivity.KEY_MOVIE_ID, movie.getId());
             startActivity(intent);
         }
     }
 
-    public void onRankedMovieSelected(DocumentSnapshot movie) {
+    private void onRankedMovieSelected(DocumentSnapshot movie) {
         MovieListItem item = movie.toObject(MovieListItem.class);
         if (item != null) {
-             Intent intent = new Intent(getContext(), MovieDetailActivity.class);
-             // Passed movie.getId() instead of tmdbId to ensure we use the document ID
-             intent.putExtra(MovieDetailActivity.KEY_MOVIE_ID, movie.getId());
-             startActivity(intent);
+            Intent intent = new Intent(getContext(), MovieDetailActivity.class);
+            intent.putExtra(MovieDetailActivity.KEY_MOVIE_ID, movie.getId());
+            startActivity(intent);
         }
     }
 }
