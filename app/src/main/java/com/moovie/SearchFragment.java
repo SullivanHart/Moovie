@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -38,6 +39,7 @@ public class SearchFragment extends Fragment implements ApiMovieAdapter.OnMovieS
 
     private EditText searchInput;
     private RecyclerView recyclerView;
+    private ImageButton backButton;
     private ApiMovieAdapter apiMovieAdapter;
     private ApiService apiService;
     private FirebaseFirestore mFirestore;
@@ -52,6 +54,14 @@ public class SearchFragment extends Fragment implements ApiMovieAdapter.OnMovieS
 
         searchInput = view.findViewById(R.id.searchInput);
         recyclerView = view.findViewById(R.id.recyclerView);
+        backButton = view.findViewById(R.id.backButton);
+
+        // Set up back button click listener
+        backButton.setOnClickListener(v -> {
+            if (getActivity() != null) {
+                getActivity().onBackPressed();
+            }
+        });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         // Pass 'this' as listener to handle movie selection
