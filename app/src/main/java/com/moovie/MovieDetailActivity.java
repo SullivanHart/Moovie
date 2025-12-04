@@ -2,6 +2,8 @@ package com.moovie;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -141,7 +143,6 @@ public class MovieDetailActivity extends AppCompatActivity
                     visible ? R.drawable.ic_expand_more : R.drawable.ic_expand_less);
         });
 
-
         // Button listeners
         buttonWatched.setOnClickListener(v -> toggleWatched());
         buttonWantToWatch.setOnClickListener(v -> toggleWantToWatch());
@@ -173,6 +174,19 @@ public class MovieDetailActivity extends AppCompatActivity
         }
     }
 
+    private void updateButtonAppearance(Button button, boolean isSelected) {
+        if (isSelected) {
+            // Darker green when selected (pressed in) with dimmed text
+            button.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1B5E20")));
+            button.setTextColor(Color.parseColor("#B0B0B0")); // Dimmed gray text
+        } else {
+            // Standard green when not selected (raised up) with white text
+            button.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50")));
+            button.setTextColor(Color.WHITE); // Bright white text
+        }
+        Log.d(TAG, "Button " + button.getId() + " appearance updated, selected: " + isSelected);
+    }
+
     private void loadUserMovieStatus() {
         mUserRef.collection("watched")
                 .document(mMovieRef.getId())
@@ -180,9 +194,16 @@ public class MovieDetailActivity extends AppCompatActivity
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
                         buttonWatched.setSelected(true);
+                        updateButtonAppearance(buttonWatched, true);
+                        Log.d(TAG, "Loaded: Movie is in watched list");
+                    } else {
+                        updateButtonAppearance(buttonWatched, false);
                     }
                 })
-                .addOnFailureListener(e -> Log.w(TAG, "Error loading watched status", e));
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error loading watched status", e);
+                    updateButtonAppearance(buttonWatched, false);
+                });
 
         mUserRef.collection("wantToWatch")
                 .document(mMovieRef.getId())
@@ -190,13 +211,24 @@ public class MovieDetailActivity extends AppCompatActivity
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
                         buttonWantToWatch.setSelected(true);
+                        updateButtonAppearance(buttonWantToWatch, true);
+                        Log.d(TAG, "Loaded: Movie is in want to watch list");
+                    } else {
+                        updateButtonAppearance(buttonWantToWatch, false);
                     }
                 })
-                .addOnFailureListener(e -> Log.w(TAG, "Error loading want to watch status", e));
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error loading want to watch status", e);
+                    updateButtonAppearance(buttonWantToWatch, false);
+                });
     }
 
     private void toggleWatched() {
-        buttonWatched.setSelected(!buttonWatched.isSelected());
+        boolean newState = !buttonWatched.isSelected();
+        buttonWatched.setSelected(newState);
+        updateButtonAppearance(buttonWatched, newState);
+
+        Log.d(TAG, "toggleWatched - newState: " + newState);
 
         DocumentReference watchedRef = mUserRef.collection("watched").document(mMovieRef.getId());
 
@@ -209,6 +241,7 @@ public class MovieDetailActivity extends AppCompatActivity
                     })
                     .addOnFailureListener(e -> {
                         buttonWatched.setSelected(false);
+                        updateButtonAppearance(buttonWatched, false);
                         Log.e(TAG, "Error adding to watched", e);
                         Toast.makeText(this, "Error saving", Toast.LENGTH_SHORT).show();
                     });
@@ -221,6 +254,7 @@ public class MovieDetailActivity extends AppCompatActivity
                     })
                     .addOnFailureListener(e -> {
                         buttonWatched.setSelected(true);
+                        updateButtonAppearance(buttonWatched, true);
                         Log.e(TAG, "Error removing from watched", e);
                         Toast.makeText(this, "Error saving", Toast.LENGTH_SHORT).show();
                     });
@@ -228,7 +262,11 @@ public class MovieDetailActivity extends AppCompatActivity
     }
 
     private void toggleWantToWatch() {
-        buttonWantToWatch.setSelected(!buttonWantToWatch.isSelected());
+        boolean newState = !buttonWantToWatch.isSelected();
+        buttonWantToWatch.setSelected(newState);
+        updateButtonAppearance(buttonWantToWatch, newState);
+
+        Log.d(TAG, "toggleWantToWatch - newState: " + newState);
 
         DocumentReference wantRef = mUserRef.collection("wantToWatch").document(mMovieRef.getId());
 
@@ -241,6 +279,7 @@ public class MovieDetailActivity extends AppCompatActivity
                     })
                     .addOnFailureListener(e -> {
                         buttonWantToWatch.setSelected(false);
+                        updateButtonAppearance(buttonWantToWatch, false);
                         Log.e(TAG, "Error adding to want to watch", e);
                         Toast.makeText(this, "Error saving", Toast.LENGTH_SHORT).show();
                     });
@@ -253,6 +292,7 @@ public class MovieDetailActivity extends AppCompatActivity
                     })
                     .addOnFailureListener(e -> {
                         buttonWantToWatch.setSelected(true);
+                        updateButtonAppearance(buttonWantToWatch, true);
                         Log.e(TAG, "Error removing from want to watch", e);
                         Toast.makeText(this, "Error saving", Toast.LENGTH_SHORT).show();
                     });
