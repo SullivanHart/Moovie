@@ -121,9 +121,6 @@ public class RatingPageFragment extends Fragment {
         mRecyclerView.setAdapter(mUnratedAdapter);
     }
 
-    /**
-     * Ensures rankIndex is always 0-based and matches current sorted order.
-     */
     private void showRankedMovies() {
         isShowingUnrated = false;
 
@@ -135,47 +132,59 @@ public class RatingPageFragment extends Fragment {
 
         // === DRAG HANDLER ===
         ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
+
             @Override
             public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
                 int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-                return makeMovementFlags(dragFlags, 0); // no swipe
+                return makeMovementFlags(dragFlags, 0);
             }
 
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView,
                                   @NonNull RecyclerView.ViewHolder viewHolder,
                                   @NonNull RecyclerView.ViewHolder target) {
+
                 int fromPos = viewHolder.getBindingAdapterPosition();
                 int toPos = target.getBindingAdapterPosition();
+
+                // Validate positions
+                if (fromPos == RecyclerView.NO_POSITION || toPos == RecyclerView.NO_POSITION) {
+                    return false;
+                }
+
                 mRankedAdapter.onItemMove(fromPos, toPos);
                 return true;
             }
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                // We do NOT use swipe delete here.
+                // No swipe functionality
+            }
+
+            @Override
+            public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+                super.onSelectedChanged(viewHolder, actionState);
+
+                if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+                    // Started dragging
+                    mRankedAdapter.startDrag();
+                    Log.d(TAG, "Started dragging");
+                }
             }
 
             @Override
             public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
                 super.clearView(recyclerView, viewHolder);
 
-                // Save new order
-                mRankedAdapter.updateRankIndexes();
-
-                // Refresh to avoid duplicate & stale items
-                recyclerView.post(() -> {
-                    mRankedAdapter.stopListening();
-                    mRankedAdapter.startListening();
-                });
+                // Save and finish dragging
+                mRankedAdapter.endDrag();
+                Log.d(TAG, "Finished dragging");
             }
         };
 
         ItemTouchHelper helper = new ItemTouchHelper(callback);
         helper.attachToRecyclerView(mRecyclerView);
     }
-
-
 
     /* -------------------- LIFECYCLE -------------------- */
 
