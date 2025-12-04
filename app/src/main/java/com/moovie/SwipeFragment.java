@@ -36,7 +36,7 @@ import retrofit2.Response;
 public class SwipeFragment extends Fragment implements ApiMovieAdapter.OnMovieSelectedListener {
 
     private static final String TAG = "RandomSwipe";
-    private static final String API_KEY = BuildConfig.TMDB_API_KEY;
+    private static final String API_KEY = BuildConfig.TMDB_API_KEY_RA;
 
     private RecyclerView recyclerView;
     private ApiMovieAdapter adapter;

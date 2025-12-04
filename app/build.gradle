@@ -24,12 +24,14 @@ android {
 
     buildTypes {
         debug {
+            buildConfigField "String", "TMDB_API_KEY_RA", "\"${getLocalProperty('TMDB_API_KEY_RA')}\""
             buildConfigField "String", "TMDB_API_KEY", "\"${getLocalProperty('TMDB_API_KEY')}\""
             buildConfigField "String", "WM_API_KEY", "\"${getLocalProperty('WM_API_KEY')}\""
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "String", "TMDB_API_KEY_RA", "\"${getLocalProperty('TMDB_API_KEY_RA')}\""
             buildConfigField "String", "TMDB_API_KEY", "\"${getLocalProperty('TMDB_API_KEY')}\""
             buildConfigField "String", "WM_API_KEY", "\"${getLocalProperty('WM_API_KEY')}\""
         }
