@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,7 +42,6 @@ import java.util.Map;
 public class ProfileFragment extends Fragment {
 
     private TextView nameTextView, emailTextView, bioTextView;
-    private ImageView profileImageView;
     private Button editButton;
     private ImageButton buttonSignOut;
     private Button buttonDeleteAccount;
@@ -75,7 +73,6 @@ public class ProfileFragment extends Fragment {
 
         // Find views
         MaterialToolbar toolbar = view.findViewById(R.id.topAppBar);
-        profileImageView = view.findViewById(R.id.image_profile);
         nameTextView = view.findViewById(R.id.text_name);
         emailTextView = view.findViewById(R.id.text_email);
         bioTextView = view.findViewById(R.id.text_bio);
@@ -126,14 +123,9 @@ public class ProfileFragment extends Fragment {
         String uid = user.getUid();
         String email = user.getEmail();
         String displayName = user.getDisplayName();
-        String photoUrl = (user.getPhotoUrl() != null) ? user.getPhotoUrl().toString() : null;
 
         emailTextView.setText(email != null ? email : "No email");
         nameTextView.setText(displayName != null ? displayName : "User");
-
-        if (photoUrl != null && getContext() != null) {
-            Glide.with(getContext()).load(photoUrl).into(profileImageView);
-        }
 
         mFirestore.collection("users").document(uid)
                 .get()
