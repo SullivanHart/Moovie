@@ -26,7 +26,14 @@ public class FilterDialogFragment extends DialogFragment implements View.OnClick
 
     public static final String TAG = "FilterDialog";
 
+    /**
+     * Interface to listen for filter application events.
+     */
     interface FilterListener {
+        /**
+         * Called when filters are applied.
+         * @param filters The selected filters.
+         */
         void onFilter(Filters filters);
     }
 
@@ -37,6 +44,14 @@ public class FilterDialogFragment extends DialogFragment implements View.OnClick
 
     private FilterListener mFilterListener;
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate any views in the fragment.
+     * @param container          If non-null, this is the parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -78,6 +93,10 @@ public class FilterDialogFragment extends DialogFragment implements View.OnClick
         return mRootView;
     }
 
+    /**
+     * Called when the fragment is first attached to its context.
+     * @param context The context.
+     */
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -86,6 +105,9 @@ public class FilterDialogFragment extends DialogFragment implements View.OnClick
         // }
     }
 
+    /**
+     * Called when the fragment is visible to the user and actively running.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -96,6 +118,10 @@ public class FilterDialogFragment extends DialogFragment implements View.OnClick
         }
     }
 
+    /**
+     * Called when a view has been clicked.
+     * @param v The view that was clicked.
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -148,6 +174,9 @@ public class FilterDialogFragment extends DialogFragment implements View.OnClick
         return null;
     }
 
+    /**
+     * Resets the filters to their default values.
+     */
     public void resetFilters() {
         if (mRootView != null) {
             mGenreSpinner.setSelection(0);
@@ -156,6 +185,10 @@ public class FilterDialogFragment extends DialogFragment implements View.OnClick
         }
     }
 
+    /**
+     * Gets the currently selected filters.
+     * @return The Filters object.
+     */
     public Filters getFilters() {
         Filters filters = new Filters();
         if (mRootView != null) {
@@ -167,6 +200,10 @@ public class FilterDialogFragment extends DialogFragment implements View.OnClick
         return filters;
     }
 
+    /**
+     * Sets the listener for filter events.
+     * @param listener The listener.
+     */
     public void setFilterListener(FilterListener listener) {
         mFilterListener = listener;
     }

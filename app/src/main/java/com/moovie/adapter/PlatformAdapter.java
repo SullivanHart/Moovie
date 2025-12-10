@@ -19,10 +19,20 @@ public class PlatformAdapter extends RecyclerView.Adapter<PlatformAdapter.ViewHo
 
     private final List<Platform> platforms;
 
+    /**
+     * Constructor for PlatformAdapter.
+     * @param platforms The list of platforms to display.
+     */
     public PlatformAdapter(List<Platform> platforms) {
         this.platforms = platforms;
     }
 
+    /**
+     * Called when RecyclerView needs a new ViewHolder of the given type to represent an item.
+     * @param parent The ViewGroup into which the new View will be added after it is bound to an adapter position.
+     * @param viewType The view type of the new View.
+     * @return A new ViewHolder that holds a View of the given view type.
+     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -31,6 +41,11 @@ public class PlatformAdapter extends RecyclerView.Adapter<PlatformAdapter.ViewHo
         return new ViewHolder(view);
     }
 
+    /**
+     * Called by RecyclerView to display the data at the specified position.
+     * @param holder The ViewHolder which should be updated to represent the contents of the item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Platform p = platforms.get(position);
@@ -45,11 +60,18 @@ public class PlatformAdapter extends RecyclerView.Adapter<PlatformAdapter.ViewHo
         }
     }
 
+    /**
+     * Returns the total number of items in the data set held by the adapter.
+     * @return The total number of items in this adapter.
+     */
     @Override
     public int getItemCount() {
         return platforms == null ? 0 : platforms.size();
     }
 
+    /**
+     * ViewHolder for platform items.
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView logo;
         TextView name;

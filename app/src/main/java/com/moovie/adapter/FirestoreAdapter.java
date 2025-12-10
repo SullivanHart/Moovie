@@ -49,16 +49,26 @@ public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
 
     private ArrayList<DocumentSnapshot> mSnapshots = new ArrayList<>();
 
+    /**
+     * Constructor for FirestoreAdapter.
+     * @param query The Firestore query to listen to.
+     */
     public FirestoreAdapter(Query query) {
         mQuery = query;
     }
 
+    /**
+     * Starts listening for Firestore updates.
+     */
     public void startListening() {
         if (mQuery != null && mRegistration == null) {
             mRegistration = mQuery.addSnapshotListener(this);
         }
     }
 
+    /**
+     * Stops listening for Firestore updates.
+     */
     public void stopListening() {
         if (mRegistration != null) {
             mRegistration.remove();
@@ -69,6 +79,10 @@ public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
         notifyDataSetChanged();
     }
 
+    /**
+     * Sets a new query and starts listening to it.
+     * @param query The new Firestore query.
+     */
     public void setQuery(Query query) {
         // Stop listening
         stopListening();
@@ -82,20 +96,41 @@ public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
         startListening();
     }
 
+    /**
+     * Returns the total number of items in the data set held by the adapter.
+     * @return The total number of items in this adapter.
+     */
     @Override
     public int getItemCount() {
         return mSnapshots.size();
     }
 
+    /**
+     * Gets the DocumentSnapshot at the specified index.
+     * @param index The index of the snapshot.
+     * @return The DocumentSnapshot at the specified index.
+     */
     protected DocumentSnapshot getSnapshot(int index) {
         return mSnapshots.get(index);
     }
 
+    /**
+     * Called when an error occurs while listening to the query.
+     * @param e The exception that occurred.
+     */
     protected void onError(FirebaseFirestoreException e) {};
 
+    /**
+     * Called when the data has changed.
+     */
     protected void onDataChanged() {}
 
     // Add this method
+    /**
+     * Called when the Firestore query returns a snapshot.
+     * @param documentSnapshots The new query snapshot.
+     * @param e The exception that occurred, if any.
+     */
     @Override
     public void onEvent(QuerySnapshot documentSnapshots,
                         FirebaseFirestoreException e) {
@@ -125,10 +160,19 @@ public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
         onDataChanged();
     }
 
+    /**
+     * Called when a document is added.
+     * @param change The document change event.
+     */
     protected void onDocumentAdded(DocumentChange change) {
         mSnapshots.add(change.getNewIndex(), change.getDocument());
         notifyItemInserted(change.getNewIndex());
     }
+
+    /**
+     * Called when a document is modified.
+     * @param change The document change event.
+     */
     protected void onDocumentModified(DocumentChange change) {
         if (change.getOldIndex() == change.getNewIndex()) {
             // Item changed but remained in same position
@@ -142,11 +186,13 @@ public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
         }
     }
 
+    /**
+     * Called when a document is removed.
+     * @param change The document change event.
+     */
     protected void onDocumentRemoved(DocumentChange change) {
         mSnapshots.remove(change.getOldIndex());
         notifyItemRemoved(change.getOldIndex());
     }
 
 }
-
-

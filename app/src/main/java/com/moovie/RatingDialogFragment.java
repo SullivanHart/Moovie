@@ -24,12 +24,27 @@ public class RatingDialogFragment extends DialogFragment implements View.OnClick
 
     private EditText mRatingText;
 
+    /**
+     * Interface to listen for rating submission events.
+     */
     interface RatingListener {
+        /**
+         * Called when a rating is submitted.
+         * @param rating The rating object.
+         */
         void onRating(Rating rating);
     }
 
     private RatingListener mRatingListener;
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate any views in the fragment.
+     * @param container          If non-null, this is the parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -45,6 +60,10 @@ public class RatingDialogFragment extends DialogFragment implements View.OnClick
         return v;
     }
 
+    /**
+     * Called when the fragment is first attached to its context.
+     * @param context The context.
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -54,6 +73,9 @@ public class RatingDialogFragment extends DialogFragment implements View.OnClick
         }
     }
 
+    /**
+     * Called when the fragment is visible to the user and actively running.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -64,6 +86,10 @@ public class RatingDialogFragment extends DialogFragment implements View.OnClick
         }
     }
 
+    /**
+     * Called when a view has been clicked.
+     * @param v The view that was clicked.
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -76,6 +102,10 @@ public class RatingDialogFragment extends DialogFragment implements View.OnClick
         }
     }
 
+    /**
+     * Handles the submit button click.
+     * @param view The view that was clicked.
+     */
     public void onSubmitClicked(View view) {
         FirebaseAuth auth = FirebaseUtil.getAuth();
         if (auth.getCurrentUser() != null) {
@@ -93,6 +123,10 @@ public class RatingDialogFragment extends DialogFragment implements View.OnClick
         }
     }
 
+    /**
+     * Handles the cancel button click.
+     * @param view The view that was clicked.
+     */
     public void onCancelClicked(View view) {
         dismiss();
     }

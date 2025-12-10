@@ -38,6 +38,53 @@ android {
     }
 }
 
+afterEvaluate {
+    tasks.register('androidJavadocs', Javadoc) {
+
+        // Depend on tasks that generate BuildConfig
+        dependsOn 'assembleRelease'
+
+        // Collect all Java source files
+        def sourceDirs = android.sourceSets.main.java.srcDirs
+        def buildConfigDir = file("$buildDir/generated/source/buildConfig/release")
+
+        // Add all source directories
+        source = sourceDirs
+        if (buildConfigDir.exists()) {
+            source += buildConfigDir
+        }
+
+        // Android runtime (android.jar)
+        classpath += files(android.getBootClasspath())
+
+        // Add dependencies from the release variant
+        def releaseVariant = android.applicationVariants.find { it.name == "release" }
+        if (releaseVariant != null) {
+            classpath += files(releaseVariant.getCompileClasspath())
+        }
+
+        // Output - use project-relative path
+        destinationDir = file("${projectDir}/docs")
+
+        // Avoid hard fail on warnings
+        failOnError false
+
+        // Javadoc options
+        options {
+            encoding = 'UTF-8'
+            charSet = 'UTF-8'
+            author = true
+            version = true
+            links("https://docs.oracle.com/javase/8/docs/api/")
+            // Suppress all warnings and linting
+            addStringOption('Xdoclint:none', '-quiet')
+            // Show private and package-private members too
+            memberLevel = JavadocMemberLevel.PRIVATE
+        }
+    }
+}
+
+
 // Helper function to read local.properties
 def getLocalProperty(String key) {
     Properties properties = new Properties()

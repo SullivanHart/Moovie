@@ -15,6 +15,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Activity for user registration.
+ */
 public class SignupActivity extends AppCompatActivity {
 
     private static final String TAG = "SignupActivity";
@@ -23,6 +26,11 @@ public class SignupActivity extends AppCompatActivity {
     private Button signupButton;
     private FirebaseAuth mAuth;
 
+    /**
+     * Called when the activity is starting.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

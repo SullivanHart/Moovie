@@ -25,6 +25,9 @@ import com.moovie.util.ImageUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activity for ranking a movie against other watched movies.
+ */
 public class RankingActivity extends AppCompatActivity {
 
     private static final String TAG = "RankingActivity";
@@ -51,6 +54,11 @@ public class RankingActivity extends AppCompatActivity {
     private int mHigh;
     private int mMid;
 
+    /**
+     * Called when the activity is starting.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

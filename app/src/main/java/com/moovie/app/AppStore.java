@@ -32,6 +32,8 @@ public final class AppStore {
      This method is safe to call multiple times; subsequent calls are no-ops.
 
      Do NOT perform heavy work on the UI thread here.
+
+     * @param ctx The context to create the WM repo in.
      */
     public static synchronized void init(Context ctx) {
         if (wmRepo != null) {
@@ -64,37 +66,15 @@ public final class AppStore {
     }
 
     /**
-
      Accessor for the shared WatchmodeRepository.
-
      Will lazily initialize if not already created.
+     * @param ctx The context the WM repo is in.
+     * @return wmRepo The repository.
      */
     public static synchronized WatchmodeRepository getWatchmodeRepo(Context ctx) {
         if (wmRepo == null) {
             init(ctx);
         }
         return wmRepo;
-    }
-
-    /**
-
-     Optional: expose readiness so UI can wait for logos to be ready.
-
-     Callers can poll isLogosReady or observe via your preferred observable mechanism.
-     */
-    public static boolean isLogosReady() {
-        return logosReady;
-    }
-
-    public static void setLogosReady(boolean ready) {
-        logosReady = ready;
-    }
-
-    public static boolean isLoadingLogos() {
-        return logosLoadingInProgress;
-    }
-
-    public static void setLoadingLogos(boolean loading) {
-        logosLoadingInProgress = loading;
     }
 }

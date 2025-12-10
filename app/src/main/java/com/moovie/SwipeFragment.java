@@ -33,6 +33,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Fragment for discovering movies with swipe actions (like/dislike).
+ */
 public class SwipeFragment extends Fragment implements ApiMovieAdapter.OnMovieSelectedListener {
 
     private static final String TAG = "RandomSwipe";
@@ -46,6 +49,21 @@ public class SwipeFragment extends Fragment implements ApiMovieAdapter.OnMovieSe
 
     private final Random random = new Random();
 
+    /**
+     * Default constructor for SwipeFragment.
+     */
+    public SwipeFragment() {
+        // Required empty public constructor
+    }
+
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate any views in the fragment.
+     * @param container          If non-null, this is the parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -180,7 +198,11 @@ public class SwipeFragment extends Fragment implements ApiMovieAdapter.OnMovieSe
     }
 
 
-    // When user taps a movie card
+    /**
+     * Called when a movie is selected from the list.
+     *
+     * @param movie The selected movie.
+     */
     @Override
     public void onMovieSelected(Movie movie) {
         saveMovieToFirebase(movie);

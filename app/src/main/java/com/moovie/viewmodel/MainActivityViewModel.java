@@ -28,23 +28,42 @@ public class MainActivityViewModel extends ViewModel {
     private boolean mIsSigningIn;
     private Filters mFilters;
 
+    /**
+     * Constructor for MainActivityViewModel.
+     */
     public MainActivityViewModel() {
         mIsSigningIn = false;
         mFilters = Filters.getDefault();
     }
 
+    /**
+     * Checks if the user is currently signing in.
+     * @return true if signing in, false otherwise.
+     */
     public boolean getIsSigningIn() {
         return mIsSigningIn;
     }
 
+    /**
+     * Sets the signing in state.
+     * @param mIsSigningIn The new signing in state.
+     */
     public void setIsSigningIn(boolean mIsSigningIn) {
         this.mIsSigningIn = mIsSigningIn;
     }
 
+    /**
+     * Gets the current filters.
+     * @return The current Filters object.
+     */
     public Filters getFilters() {
         return mFilters;
     }
 
+    /**
+     * Sets the filters.
+     * @param mFilters The new Filters object.
+     */
     public void setFilters(Filters mFilters) {
         this.mFilters = mFilters;
     }

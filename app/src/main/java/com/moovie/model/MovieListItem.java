@@ -3,6 +3,9 @@ package com.moovie.model;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.moovie.util.GenreUtil;
 
+/**
+ * Model class for a movie item in a list (e.g., watchlist, favorites).
+ */
 @IgnoreExtraProperties
 public class MovieListItem {
     private int tmdbId;
@@ -13,9 +16,16 @@ public class MovieListItem {
     private int rankIndex;
     private String genre; // Add genre field
 
+    /**
+     * Default constructor for MovieListItem.
+     */
     public MovieListItem() {
     }
 
+    /**
+     * Constructor that creates a MovieListItem from a Movie object.
+     * @param movie The Movie object to create the list item from.
+     */
     public MovieListItem(Movie movie) {
         this.tmdbId = movie.getTmdbId();
         this.title = movie.getTitle();

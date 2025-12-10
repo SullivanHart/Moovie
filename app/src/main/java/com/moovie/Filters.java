@@ -29,6 +29,9 @@ public class Filters {
     private String sortBy = null;
     private Query.Direction sortDirection = null;
 
+    /**
+     * Default constructor for Filters.
+     */
     public Filters() {}
 
     /** Default filter: sort by rating descending */
@@ -39,46 +42,101 @@ public class Filters {
         return filters;
     }
 
+    /**
+     * Checks if a genre filter is set.
+     *
+     * @return true if genre is not empty, false otherwise.
+     */
     public boolean hasGenre() {
         return !TextUtils.isEmpty(genre);
     }
 
+    /**
+     * Checks if a release year filter is set.
+     *
+     * @return true if release year is not empty, false otherwise.
+     */
     public boolean hasReleaseYear() {
         return !TextUtils.isEmpty(releaseYear);
     }
 
+    /**
+     * Checks if a sort by criteria is set.
+     *
+     * @return true if sort by is not empty, false otherwise.
+     */
     public boolean hasSortBy() {
         return !TextUtils.isEmpty(sortBy);
     }
 
+    /**
+     * Gets the genre filter.
+     *
+     * @return The genre.
+     */
     public String getGenre() {
         return genre;
     }
 
+    /**
+     * Sets the genre filter.
+     *
+     * @param genre The genre to set.
+     */
     public void setGenre(String genre) {
         this.genre = genre;
     }
 
+    /**
+     * Gets the release year filter.
+     *
+     * @return The release year.
+     */
     public String getReleaseYear() {
         return releaseYear;
     }
 
+    /**
+     * Sets the release year filter.
+     *
+     * @param releaseYear The release year to set.
+     */
     public void setReleaseYear(String releaseYear) {
         this.releaseYear = releaseYear;
     }
 
+    /**
+     * Gets the sort by criteria.
+     *
+     * @return The sort by field name.
+     */
     public String getSortBy() {
         return sortBy;
     }
 
+    /**
+     * Sets the sort by criteria.
+     *
+     * @param sortBy The field name to sort by.
+     */
     public void setSortBy(String sortBy) {
         this.sortBy = sortBy;
     }
 
+    /**
+     * Gets the sort direction.
+     *
+     * @return The sort direction (ASCENDING or DESCENDING).
+     */
     public Query.Direction getSortDirection() {
         return sortDirection;
     }
 
+    /**
+     * Sets the sort direction.
+     *
+     * @param sortDirection The sort direction to set.
+     */
     public void setSortDirection(Query.Direction sortDirection) {
         this.sortDirection = sortDirection;
     }

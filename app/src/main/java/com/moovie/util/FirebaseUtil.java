@@ -33,6 +33,10 @@ public class FirebaseUtil {
     private static FirebaseAuth AUTH;
     private static AuthUI AUTH_UI;
 
+    /**
+     * Gets the FirebaseFirestore instance.
+     * @return The FirebaseFirestore instance.
+     */
     public static FirebaseFirestore getFirestore() {
         if (FIRESTORE == null) {
             FIRESTORE = FirebaseFirestore.getInstance();
@@ -47,6 +51,10 @@ public class FirebaseUtil {
         return FIRESTORE;
     }
 
+    /**
+     * Gets the FirebaseAuth instance.
+     * @return The FirebaseAuth instance.
+     */
     public static FirebaseAuth getAuth() {
         if (AUTH == null) {
             AUTH = FirebaseAuth.getInstance();
@@ -61,6 +69,10 @@ public class FirebaseUtil {
         return AUTH;
     }
 
+    /**
+     * Gets the AuthUI instance.
+     * @return The AuthUI instance.
+     */
     public static AuthUI getAuthUI() {
         if (AUTH_UI == null) {
             AUTH_UI = AuthUI.getInstance();

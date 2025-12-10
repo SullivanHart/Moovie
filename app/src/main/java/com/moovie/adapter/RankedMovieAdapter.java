@@ -28,7 +28,14 @@ public class RankedMovieAdapter extends FirestoreAdapter<RankedMovieAdapter.View
 
     private static final String TAG = "RankedMovieAdapter";
 
+    /**
+     * Interface to listen for movie selection events.
+     */
     public interface OnMovieSelectedListener {
+        /**
+         * Called when a movie is selected.
+         * @param movie The selected movie document.
+         */
         void onMovieSelected(DocumentSnapshot movie);
     }
 
@@ -36,11 +43,21 @@ public class RankedMovieAdapter extends FirestoreAdapter<RankedMovieAdapter.View
     private final List<DocumentSnapshot> items = new ArrayList<>();
     private boolean isDragging = false;
 
+    /**
+     * Constructor for RankedMovieAdapter.
+     * @param query The Firestore query to listen to.
+     * @param listener The listener for movie selection events.
+     */
     public RankedMovieAdapter(Query query, OnMovieSelectedListener listener) {
         super(query);
         mListener = listener;
     }
 
+    /**
+     * Called when the Firestore query returns a snapshot.
+     * @param snapshots The new query snapshot.
+     * @param e The exception that occurred, if any.
+     */
     @Override
     public void onEvent(QuerySnapshot snapshots, FirebaseFirestoreException e) {
         // Handle errors
@@ -66,11 +83,19 @@ public class RankedMovieAdapter extends FirestoreAdapter<RankedMovieAdapter.View
         Log.d(TAG, "Updated list with " + items.size() + " items");
     }
 
+    /**
+     * Starts a drag operation, blocking Firestore updates.
+     */
     public void startDrag() {
         isDragging = true;
         Log.d(TAG, "Drag started - blocking updates");
     }
 
+    /**
+     * Moves an item from one position to another.
+     * @param fromPosition The starting position.
+     * @param toPosition The destination position.
+     */
     public void onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < 0 || fromPosition >= items.size() ||
                 toPosition < 0 || toPosition >= items.size()) {
@@ -82,6 +107,9 @@ public class RankedMovieAdapter extends FirestoreAdapter<RankedMovieAdapter.View
         notifyItemMoved(fromPosition, toPosition);
     }
 
+    /**
+     * Ends a drag operation, updating the order in Firestore.
+     */
     public void endDrag() {
         WriteBatch batch = FirebaseUtil.getFirestore().batch();
 
@@ -105,11 +133,21 @@ public class RankedMovieAdapter extends FirestoreAdapter<RankedMovieAdapter.View
                 });
     }
 
+    /**
+     * Returns the total number of items in the data set held by the adapter.
+     * @return The total number of items in this adapter.
+     */
     @Override
     public int getItemCount() {
         return items.size();
     }
 
+    /**
+     * Called when RecyclerView needs a new ViewHolder of the given type to represent an item.
+     * @param parent The ViewGroup into which the new View will be added after it is bound to an adapter position.
+     * @param viewType The view type of the new View.
+     * @return A new ViewHolder that holds a View of the given view type.
+     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -117,6 +155,11 @@ public class RankedMovieAdapter extends FirestoreAdapter<RankedMovieAdapter.View
                 .inflate(R.layout.item_ranked_movie, parent, false));
     }
 
+    /**
+     * Called by RecyclerView to display the data at the specified position.
+     * @param holder The ViewHolder which should be updated to represent the contents of the item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if (position >= 0 && position < items.size()) {
@@ -124,6 +167,9 @@ public class RankedMovieAdapter extends FirestoreAdapter<RankedMovieAdapter.View
         }
     }
 
+    /**
+     * ViewHolder for ranked movie items.
+     */
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView rankIndexView;

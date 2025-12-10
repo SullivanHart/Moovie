@@ -18,8 +18,17 @@ public class Rating {
     private String text;
     private @ServerTimestamp Date timestamp;
 
+    /**
+     * Default constructor for Rating.
+     */
     public Rating() {}
 
+    /**
+     * Constructor for Rating.
+     * @param user The FirebaseUser who created the rating.
+     * @param rating The rating value.
+     * @param text The rating text/review.
+     */
     public Rating(FirebaseUser user, double rating, String text) {
         this.userId = user.getUid();
         this.userName = user.getDisplayName();

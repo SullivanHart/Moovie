@@ -24,17 +24,35 @@ import me.zhanghai.android.materialratingbar.MaterialRatingBar;
  */
 public class MovieAdapter extends FirestoreAdapter<MovieAdapter.ViewHolder> {
 
+    /**
+     * Interface to listen for movie selection events.
+     */
     public interface OnMovieSelectedListener {
+        /**
+         * Called when a movie is selected.
+         * @param movie The selected movie document.
+         */
         void onMovieSelected(DocumentSnapshot movie);
     }
 
     private OnMovieSelectedListener mListener;
 
+    /**
+     * Constructor for MovieAdapter.
+     * @param query The Firestore query to listen to.
+     * @param listener The listener for movie selection events.
+     */
     public MovieAdapter(Query query, OnMovieSelectedListener listener) {
         super(query);
         mListener = listener;
     }
 
+    /**
+     * Called when RecyclerView needs a new ViewHolder of the given type to represent an item.
+     * @param parent The ViewGroup into which the new View will be added after it is bound to an adapter position.
+     * @param viewType The view type of the new View.
+     * @return A new ViewHolder that holds a View of the given view type.
+     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -42,11 +60,19 @@ public class MovieAdapter extends FirestoreAdapter<MovieAdapter.ViewHolder> {
         return new ViewHolder(inflater.inflate(R.layout.item_movie, parent, false));
     }
 
+    /**
+     * Called by RecyclerView to display the data at the specified position.
+     * @param holder The ViewHolder which should be updated to represent the contents of the item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.bind(getSnapshot(position), mListener);
     }
 
+    /**
+     * ViewHolder for movie items.
+     */
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imageView;

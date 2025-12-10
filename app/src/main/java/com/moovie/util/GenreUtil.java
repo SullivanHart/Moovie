@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Utility class for converting TMDB genre IDs to genre names.
+ */
 public class GenreUtil {
 
     private static final Map<Integer, String> GENRE_MAP = new HashMap<>();
@@ -33,6 +36,8 @@ public class GenreUtil {
 
     /**
      * Get genre name from TMDB genre ID
+     * @param genreId The TMDB genre ID.
+     * @return The genre name, or "Unknown" if not found.
      */
     public static String getGenreName(int genreId) {
         return GENRE_MAP.getOrDefault(genreId, "Unknown");
@@ -40,6 +45,8 @@ public class GenreUtil {
 
     /**
      * Get the first (primary) genre name from a list of genre IDs
+     * @param genreIds The list of genre IDs.
+     * @return The name of the first genre in the list, or null if the list is empty.
      */
     public static String getPrimaryGenre(List<Integer> genreIds) {
         if (genreIds == null || genreIds.isEmpty()) {
@@ -50,6 +57,8 @@ public class GenreUtil {
 
     /**
      * Get all genre names from a list of genre IDs, comma-separated
+     * @param genreIds The list of genre IDs.
+     * @return A comma-separated string of genre names, or null if the list is empty.
      */
     public static String getAllGenres(List<Integer> genreIds) {
         if (genreIds == null || genreIds.isEmpty()) {

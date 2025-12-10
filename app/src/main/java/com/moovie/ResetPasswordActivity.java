@@ -10,6 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+/**
+ * Activity for resetting the user's password.
+ */
 public class ResetPasswordActivity extends AppCompatActivity {
 
     private static final String TAG = "ResetPasswordActivity";
@@ -18,6 +21,11 @@ public class ResetPasswordActivity extends AppCompatActivity {
     private Button resetButton;
     private FirebaseAuth mAuth;
 
+    /**
+     * Called when the activity is starting.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

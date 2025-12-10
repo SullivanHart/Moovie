@@ -20,6 +20,9 @@ import okhttp3.Request;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
 
+/**
+ * Repository for interacting with the WatchMode API.
+ */
 public class WatchmodeRepository {
 
     private final String apiKey;
@@ -31,11 +34,20 @@ public class WatchmodeRepository {
     private Map<Integer, String> logoCache = new HashMap<>();
 
 
+    /**
+     * Constructor for WatchmodeRepository.
+     * @param apiKey The WatchMode API key.
+     */
     public WatchmodeRepository(String apiKey) {
         this.apiKey = apiKey;
     }
 
     // Resolve by TMDB id to platforms
+    /**
+     * Fetches streaming platforms for a given TMDB movie ID.
+     * @param tmdbId The TMDB movie ID.
+     * @param callback The callback to receive the results or error.
+     */
     public void fetchPlatformsByTmdbId(int tmdbId, PlatformsCallback callback) {
         new Thread(() -> {
             try {
@@ -65,6 +77,11 @@ public class WatchmodeRepository {
     }
 
     // Resolve by known WM title_id
+    /**
+     * Fetches streaming sources for a known WatchMode title ID.
+     * @param titleId The WatchMode title ID.
+     * @param callback The callback to receive the results or error.
+     */
     public void fetchSourcesForTitleId(String titleId, PlatformsCallback callback) {
         new Thread(() -> {
             try {
@@ -149,11 +166,29 @@ public class WatchmodeRepository {
         }
     }
 
+    /**
+     * Callback interface for platform fetch operations.
+     */
     public interface PlatformsCallback {
+        /**
+         * Called when platforms are successfully fetched.
+         * @param titleId The WatchMode title ID.
+         * @param platforms The list of platforms.
+         */
         void onSuccess(String titleId, List<Platform> platforms);
+
+        /**
+         * Called when an error occurs.
+         * @param e The exception.
+         */
         void onError(Exception e);
     }
 
+    /**
+     * Fetches source logos and caches them.
+     * @param platformsCallback Unused callback, kept for compatibility or future use.
+     * @throws IOException If the request fails.
+     */
     public void fetchSourceLogos(PlatformsCallback platformsCallback) throws IOException {
         String url = "https://api.watchmode.com/v1/sources/?apiKey=" + apiKey;
         Log.d("WPRepo", "Sources Request: " + url );
@@ -165,6 +200,10 @@ public class WatchmodeRepository {
             logoCache.put(item.id, item.logo_100px);
         }
     }
+
+    /**
+     * Inner class representing a source logo item from the API.
+     */
     public static class SourceLogoItem {
         public int id;
         public String logo_100px;

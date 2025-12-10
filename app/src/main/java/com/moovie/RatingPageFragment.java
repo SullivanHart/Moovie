@@ -23,6 +23,9 @@ import com.moovie.adapter.RankedMovieAdapter;
 import com.moovie.model.MovieListItem;
 import com.moovie.util.FirebaseUtil;
 
+/**
+ Fragment containing the page to rate a movie.
+ */
 public class RatingPageFragment extends Fragment {
 
     private static final String TAG = "RatingPageFragment";
@@ -38,6 +41,9 @@ public class RatingPageFragment extends Fragment {
     private boolean isShowingUnrated = true;
     private String userId;
 
+    /**
+     * Default constructor for RatingPageFragment.
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -188,6 +194,9 @@ public class RatingPageFragment extends Fragment {
 
     /* -------------------- LIFECYCLE -------------------- */
 
+    /**
+     * Called when the fragment is visible to the user and actively running.
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -195,6 +204,9 @@ public class RatingPageFragment extends Fragment {
         else mRankedAdapter.startListening();
     }
 
+    /**
+     * Called when the fragment is no longer started.
+     */
     @Override
     public void onStop() {
         super.onStop();

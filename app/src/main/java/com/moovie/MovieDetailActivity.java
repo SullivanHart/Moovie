@@ -44,6 +44,9 @@ import java.util.List;
 
 import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 
+/**
+ * Activity to display details about a movie.
+ */
 public class MovieDetailActivity extends AppCompatActivity
         implements EventListener<DocumentSnapshot> {
 
@@ -72,6 +75,11 @@ public class MovieDetailActivity extends AppCompatActivity
     private RecyclerView mPlatformsRecycler;
     private ViewGroup mPlatformsContainer;
 
+    /**
+     * Called when the activity is starting.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -156,6 +164,9 @@ public class MovieDetailActivity extends AppCompatActivity
         loadUserMovieStatus();
     }
 
+    /**
+     * Called when the activity is becoming visible to the user.
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -163,6 +174,9 @@ public class MovieDetailActivity extends AppCompatActivity
         mMovieRegistration = mMovieRef.addSnapshotListener(this);
     }
 
+    /**
+     * Called when the activity is no longer visible to the user.
+     */
     @Override
     public void onStop() {
         super.onStop();
@@ -299,6 +313,11 @@ public class MovieDetailActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Called when the Firestore document snapshot is available.
+     * @param snapshot The document snapshot.
+     * @param e The exception that occurred, if any.
+     */
     @Override
     public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
         if (e != null) {
@@ -363,10 +382,18 @@ public class MovieDetailActivity extends AppCompatActivity
         Log.d(TAG, "WM title_id: " + titleId + " platforms: " + platforms.size());
     }
 
+    /**
+     * Handles the click event for the back arrow.
+     * @param view The view that was clicked.
+     */
     public void onBackArrowClicked(View view) {
         onBackPressed();
     }
 
+    /**
+     * Handles the click event for adding a rating.
+     * @param view The view that was clicked.
+     */
     public void onAddRatingClicked(View view) {
         mRatingDialog.show(getSupportFragmentManager(), RatingDialogFragment.TAG);
     }

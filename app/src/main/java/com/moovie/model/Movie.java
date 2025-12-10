@@ -5,6 +5,9 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
+/**
+ * Model class for Movie.
+ */
 @IgnoreExtraProperties
 public class Movie {
 
@@ -46,8 +49,19 @@ public class Movie {
     private int numRatings;
     private double avgRating;
 
+    /**
+     * Default constructor for Movie.
+     */
     public Movie() {}
 
+    /**
+     * Constructor with parameters.
+     * @param title Title of the movie.
+     * @param posterUrl URL of the poster.
+     * @param releaseDate Release date string.
+     * @param releaseYear Release year string.
+     * @param tmdbId TMDB ID of the movie.
+     */
     public Movie(String title, String posterUrl, String releaseDate,
                  String releaseYear, int tmdbId) {
         this.title = title;

@@ -1,0 +1,9 @@
+com.moovie
+com.moovie.adapter
+com.moovie.app
+com.moovie.data
+com.moovie.model
+com.moovie.model.watchmode
+com.moovie.network
+com.moovie.util
+com.moovie.viewmodel

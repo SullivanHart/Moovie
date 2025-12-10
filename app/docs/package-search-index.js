@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.moovie"},{"l":"com.moovie.adapter"},{"l":"com.moovie.app"},{"l":"com.moovie.data"},{"l":"com.moovie.model"},{"l":"com.moovie.model.watchmode"},{"l":"com.moovie.network"},{"l":"com.moovie.util"},{"l":"com.moovie.viewmodel"}];updateSearchResults();

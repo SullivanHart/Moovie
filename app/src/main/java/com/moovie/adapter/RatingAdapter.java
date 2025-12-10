@@ -34,10 +34,20 @@ import me.zhanghai.android.materialratingbar.MaterialRatingBar;
  */
 public class RatingAdapter extends FirestoreAdapter<RatingAdapter.ViewHolder> {
 
+    /**
+     * Constructor for RatingAdapter.
+     * @param query The Firestore query to listen to.
+     */
     public RatingAdapter(Query query) {
         super(query);
     }
 
+    /**
+     * Called when RecyclerView needs a new ViewHolder of the given type to represent an item.
+     * @param parent The ViewGroup into which the new View will be added after it is bound to an adapter position.
+     * @param viewType The view type of the new View.
+     * @return A new ViewHolder that holds a View of the given view type.
+     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -45,11 +55,19 @@ public class RatingAdapter extends FirestoreAdapter<RatingAdapter.ViewHolder> {
                 .inflate(R.layout.item_rating, parent, false));
     }
 
+    /**
+     * Called by RecyclerView to display the data at the specified position.
+     * @param holder The ViewHolder which should be updated to represent the contents of the item at the given position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.bind(getSnapshot(position).toObject(Rating.class));
     }
 
+    /**
+     * ViewHolder for rating items.
+     */
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView nameView;
