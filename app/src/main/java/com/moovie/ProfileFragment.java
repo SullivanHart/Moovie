@@ -55,6 +55,7 @@ public class ProfileFragment extends Fragment {
     private TextView statsWantToWatch;
     private TextView statsTopGenre;
     private TextView statsPercentageSeen;
+    private TextView statsPercentageAvailable;
     private TextView statsGenreBreakdown;
 
     private FirebaseAuth mAuth;
@@ -100,6 +101,7 @@ public class ProfileFragment extends Fragment {
         statsWantToWatch = view.findViewById(R.id.stats_want_to_watch);
         statsTopGenre = view.findViewById(R.id.stats_top_genre);
         statsPercentageSeen = view.findViewById(R.id.stats_percentage_seen);
+        statsPercentageAvailable = view.findViewById(R.id.stats_percentage_available);
         statsGenreBreakdown = view.findViewById(R.id.stats_genre_breakdown);
 
         // Set toolbar title
@@ -261,7 +263,8 @@ public class ProfileFragment extends Fragment {
 
                 if (totalMovies > 0) {
                     double percentage = (watchedCount * 100.0) / totalMovies;
-                    statsPercentageSeen.setText(String.format("%.1f%%", percentage));
+                    statsPercentageSeen.setText(String.format("%.5f%%", percentage));
+                    statsPercentageAvailable.setText("Out of " + String.valueOf(totalMovies) + " Movies");
                 } else {
                     statsPercentageSeen.setText("0%");
                 }
