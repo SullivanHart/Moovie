@@ -250,7 +250,7 @@ public class ProfileFragment extends Fragment {
                 if (totalMovies > 0) {
                     double percentage = (watchedCount * 100.0) / totalMovies;
                     statsPercentageSeen.setText(String.format("%.5f%%", percentage));
-                    statsPercentageAvailable.setText("Of " + String.valueOf(totalMovies) + " Movies");
+                    statsPercentageAvailable.setText("Out of " + String.valueOf(totalMovies) + " Movies");
                 } else {
                     statsPercentageSeen.setText("0%");
                 }
