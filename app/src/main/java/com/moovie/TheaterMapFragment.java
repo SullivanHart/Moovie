@@ -1,5 +1,6 @@
 package com.moovie;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -90,10 +91,17 @@ public class TheaterMapFragment extends Fragment implements OnMapReadyCallback {
         mMap.setOnMarkerClickListener(marker -> {
             Place place = (Place) marker.getTag();
             if (place != null) {
-                // Use getContext() for the Toast
-                Toast.makeText(getContext(), "Showtimes for " + place.getName(), Toast.LENGTH_LONG).show();
+                // Launch theater detail activity
+                Intent intent = new Intent(getActivity(), TheaterDetailActivity.class);
+                intent.putExtra("theater_name", place.getName());
+                intent.putExtra("theater_address", place.getAddress());
+                if (place.getLatLng() != null) {
+                    intent.putExtra("theater_lat", place.getLatLng().latitude);
+                    intent.putExtra("theater_lng", place.getLatLng().longitude);
+                }
+                startActivity(intent);
             }
-            return false;
+            return true;
         });
     }
 

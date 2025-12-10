@@ -43,6 +43,8 @@ package="com.moovie">
     <activity android:name=".SearchActivity" />
     <activity android:name=".ProfileActivity" />
     <activity android:name=".LoginActivity" />
+    <activity android:name=".TheaterDetailActivity" />
+    <activity android:name=".ShowtimesActivity" />
 
 </application>
 
