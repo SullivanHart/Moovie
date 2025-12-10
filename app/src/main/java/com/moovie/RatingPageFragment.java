@@ -178,6 +178,7 @@ public class RatingPageFragment extends Fragment {
 
                 // Save and finish dragging
                 mRankedAdapter.endDrag();
+                mRankedAdapter.notifyDataSetChanged();
                 Log.d(TAG, "Finished dragging");
             }
         };
