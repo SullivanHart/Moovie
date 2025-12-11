@@ -2,8 +2,6 @@ package com.moovie;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -44,11 +42,8 @@ import java.util.List;
 
 import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 
-/**
- * Activity to display details about a movie.
- */
 public class MovieDetailActivity extends AppCompatActivity
-        implements EventListener<DocumentSnapshot> {
+        implements EventListener<DocumentSnapshot>, RatingDialogFragment.RatingListener {
 
     private static final String TAG = "MovieDetailActivity";
     public static final String KEY_MOVIE_ID = "key_movie_id";
@@ -75,11 +70,6 @@ public class MovieDetailActivity extends AppCompatActivity
     private RecyclerView mPlatformsRecycler;
     private ViewGroup mPlatformsContainer;
 
-    /**
-     * Called when the activity is starting.
-     *
-     * @param savedInstanceState If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -151,6 +141,7 @@ public class MovieDetailActivity extends AppCompatActivity
                     visible ? R.drawable.ic_expand_more : R.drawable.ic_expand_less);
         });
 
+
         // Button listeners
         buttonWatched.setOnClickListener(v -> toggleWatched());
         buttonWantToWatch.setOnClickListener(v -> toggleWantToWatch());
@@ -164,9 +155,6 @@ public class MovieDetailActivity extends AppCompatActivity
         loadUserMovieStatus();
     }
 
-    /**
-     * Called when the activity is becoming visible to the user.
-     */
     @Override
     public void onStart() {
         super.onStart();
@@ -174,9 +162,6 @@ public class MovieDetailActivity extends AppCompatActivity
         mMovieRegistration = mMovieRef.addSnapshotListener(this);
     }
 
-    /**
-     * Called when the activity is no longer visible to the user.
-     */
     @Override
     public void onStop() {
         super.onStop();
@@ -188,19 +173,6 @@ public class MovieDetailActivity extends AppCompatActivity
         }
     }
 
-    private void updateButtonAppearance(Button button, boolean isSelected) {
-        if (isSelected) {
-            // Darker green when selected (pressed in) with dimmed text
-            button.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#1B5E20")));
-            button.setTextColor(Color.parseColor("#B0B0B0")); // Dimmed gray text
-        } else {
-            // Standard green when not selected (raised up) with white text
-            button.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50")));
-            button.setTextColor(Color.WHITE); // Bright white text
-        }
-        Log.d(TAG, "Button " + button.getId() + " appearance updated, selected: " + isSelected);
-    }
-
     private void loadUserMovieStatus() {
         mUserRef.collection("watched")
                 .document(mMovieRef.getId())
@@ -208,16 +180,9 @@ public class MovieDetailActivity extends AppCompatActivity
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
                         buttonWatched.setSelected(true);
-                        updateButtonAppearance(buttonWatched, true);
-                        Log.d(TAG, "Loaded: Movie is in watched list");
-                    } else {
-                        updateButtonAppearance(buttonWatched, false);
                     }
                 })
-                .addOnFailureListener(e -> {
-                    Log.w(TAG, "Error loading watched status", e);
-                    updateButtonAppearance(buttonWatched, false);
-                });
+                .addOnFailureListener(e -> Log.w(TAG, "Error loading watched status", e));
 
         mUserRef.collection("wantToWatch")
                 .document(mMovieRef.getId())
@@ -225,24 +190,13 @@ public class MovieDetailActivity extends AppCompatActivity
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
                         buttonWantToWatch.setSelected(true);
-                        updateButtonAppearance(buttonWantToWatch, true);
-                        Log.d(TAG, "Loaded: Movie is in want to watch list");
-                    } else {
-                        updateButtonAppearance(buttonWantToWatch, false);
                     }
                 })
-                .addOnFailureListener(e -> {
-                    Log.w(TAG, "Error loading want to watch status", e);
-                    updateButtonAppearance(buttonWantToWatch, false);
-                });
+                .addOnFailureListener(e -> Log.w(TAG, "Error loading want to watch status", e));
     }
 
     private void toggleWatched() {
-        boolean newState = !buttonWatched.isSelected();
-        buttonWatched.setSelected(newState);
-        updateButtonAppearance(buttonWatched, newState);
-
-        Log.d(TAG, "toggleWatched - newState: " + newState);
+        buttonWatched.setSelected(!buttonWatched.isSelected());
 
         DocumentReference watchedRef = mUserRef.collection("watched").document(mMovieRef.getId());
 
@@ -255,7 +209,6 @@ public class MovieDetailActivity extends AppCompatActivity
                     })
                     .addOnFailureListener(e -> {
                         buttonWatched.setSelected(false);
-                        updateButtonAppearance(buttonWatched, false);
                         Log.e(TAG, "Error adding to watched", e);
                         Toast.makeText(this, "Error saving", Toast.LENGTH_SHORT).show();
                     });
@@ -268,7 +221,6 @@ public class MovieDetailActivity extends AppCompatActivity
                     })
                     .addOnFailureListener(e -> {
                         buttonWatched.setSelected(true);
-                        updateButtonAppearance(buttonWatched, true);
                         Log.e(TAG, "Error removing from watched", e);
                         Toast.makeText(this, "Error saving", Toast.LENGTH_SHORT).show();
                     });
@@ -276,11 +228,7 @@ public class MovieDetailActivity extends AppCompatActivity
     }
 
     private void toggleWantToWatch() {
-        boolean newState = !buttonWantToWatch.isSelected();
-        buttonWantToWatch.setSelected(newState);
-        updateButtonAppearance(buttonWantToWatch, newState);
-
-        Log.d(TAG, "toggleWantToWatch - newState: " + newState);
+        buttonWantToWatch.setSelected(!buttonWantToWatch.isSelected());
 
         DocumentReference wantRef = mUserRef.collection("wantToWatch").document(mMovieRef.getId());
 
@@ -293,7 +241,6 @@ public class MovieDetailActivity extends AppCompatActivity
                     })
                     .addOnFailureListener(e -> {
                         buttonWantToWatch.setSelected(false);
-                        updateButtonAppearance(buttonWantToWatch, false);
                         Log.e(TAG, "Error adding to want to watch", e);
                         Toast.makeText(this, "Error saving", Toast.LENGTH_SHORT).show();
                     });
@@ -306,18 +253,39 @@ public class MovieDetailActivity extends AppCompatActivity
                     })
                     .addOnFailureListener(e -> {
                         buttonWantToWatch.setSelected(true);
-                        updateButtonAppearance(buttonWantToWatch, true);
                         Log.e(TAG, "Error removing from want to watch", e);
                         Toast.makeText(this, "Error saving", Toast.LENGTH_SHORT).show();
                     });
         }
     }
 
-    /**
-     * Called when the Firestore document snapshot is available.
-     * @param snapshot The document snapshot.
-     * @param e The exception that occurred, if any.
-     */
+    private void addRating(final DocumentReference movieRef, final Rating rating) {
+        final DocumentReference ratingRef = movieRef.collection("ratings").document();
+
+        mFirestore.runTransaction(transaction -> {
+            Movie movie = transaction.get(movieRef).toObject(Movie.class);
+            int newNumRatings = movie.getNumRatings() + 1;
+            double oldRatingTotal = movie.getAvgRating() * movie.getNumRatings();
+            double newAvgRating = (oldRatingTotal + rating.getRating()) / newNumRatings;
+
+            movie.setNumRatings(newNumRatings);
+            movie.setAvgRating(newAvgRating);
+
+            transaction.set(movieRef, movie);
+            transaction.set(ratingRef, rating);
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Log.d(TAG, "Rating added successfully");
+            hideKeyboard();
+            mRatingsRecycler.smoothScrollToPosition(0);
+        }).addOnFailureListener(e -> {
+            Log.w(TAG, "Add rating failed", e);
+            hideKeyboard();
+            Snackbar.make(findViewById(android.R.id.content),
+                    "Failed to add rating", Snackbar.LENGTH_SHORT).show();
+        });
+    }
+
     @Override
     public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
         if (e != null) {
@@ -332,10 +300,8 @@ public class MovieDetailActivity extends AppCompatActivity
     private void onMovieLoaded(Movie movie) {
         mCurrentMovie = movie;
         mTitleView.setText(movie.getTitle());
-
-        // CHANGED: Use avgRanking (star rating from cloud function)
-        mRatingIndicator.setRating((float) movie.getAvgRanking());
-        mNumRatingsView.setText(getString(R.string.fmt_num_ratings, movie.getNumRankings()));
+        mRatingIndicator.setRating((float) movie.getAvgRating());
+        mNumRatingsView.setText(getString(R.string.fmt_num_ratings, movie.getNumRatings()));
 
         String imageUrl = ImageUtil.buildImageUrl(movie.getPosterUrl());
         if (imageUrl != null) {
@@ -350,6 +316,7 @@ public class MovieDetailActivity extends AppCompatActivity
 
         // Streaming platforms integration
         WatchmodeRepository repo = AppStore.getWatchmodeRepo(this);
+
 
         repo.fetchPlatformsByTmdbId(movie.getTmdbId(), new WatchmodeRepository.PlatformsCallback() {
             @Override
@@ -382,20 +349,73 @@ public class MovieDetailActivity extends AppCompatActivity
         Log.d(TAG, "WM title_id: " + titleId + " platforms: " + platforms.size());
     }
 
-    /**
-     * Handles the click event for the back arrow.
-     * @param view The view that was clicked.
-     */
     public void onBackArrowClicked(View view) {
         onBackPressed();
     }
 
-    /**
-     * Handles the click event for adding a rating.
-     * @param view The view that was clicked.
-     */
     public void onAddRatingClicked(View view) {
         mRatingDialog.show(getSupportFragmentManager(), RatingDialogFragment.TAG);
+    }
+
+    @Override
+    public void onRating(Rating rating) {
+        if (rating.getRating() != -1.0) {
+            // Already has a rating (legacy or explicit)
+            addRating(mMovieRef, rating);
+            return;
+        }
+
+        // Need to calculate rating based on rank
+        mUserRef.collection("watched").whereEqualTo("ranked", true).get()
+            .addOnSuccessListener(querySnapshot -> {
+                int totalRanked = querySnapshot.size();
+                
+                // Check if this movie is in the list
+                DocumentSnapshot movieDoc = null;
+                for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                    // We are matching by document ID (which is movie ID)
+                    if (doc.getId().equals(mMovieRef.getId())) {
+                        movieDoc = doc;
+                        break;
+                    }
+                }
+
+                if (movieDoc == null) {
+                    Snackbar.make(findViewById(android.R.id.content),
+                            "Please rank this movie first in the Ratings tab.", Snackbar.LENGTH_LONG)
+                            .setAction("Go", v -> {
+                                // Optional: Navigate to Ranking logic
+                            }).show();
+                    return;
+                }
+
+                MovieListItem item = movieDoc.toObject(MovieListItem.class);
+                if (item == null) return;
+
+                int rankIndex = item.getRankIndex(); // 0-based
+                
+                // Calculate percentile (0-based calculation so 0/5 = 0.0 = top)
+                double percentile = (double) rankIndex / (double) totalRanked;
+                
+                double calculatedRating = 0.5;
+                if (percentile <= 0.1) calculatedRating = 5.0;
+                else if (percentile <= 0.2) calculatedRating = 4.5;
+                else if (percentile <= 0.3) calculatedRating = 4.0;
+                else if (percentile <= 0.4) calculatedRating = 3.5;
+                else if (percentile <= 0.5) calculatedRating = 3.0;
+                else if (percentile <= 0.6) calculatedRating = 2.5;
+                else if (percentile <= 0.7) calculatedRating = 2.0;
+                else if (percentile <= 0.8) calculatedRating = 1.5;
+                else calculatedRating = 1.0;
+                
+                rating.setRating(calculatedRating);
+                addRating(mMovieRef, rating);
+
+            })
+            .addOnFailureListener(e -> {
+                Log.e(TAG, "Error fetching rankings for calculation", e);
+                Toast.makeText(this, "Failed to calculate rating", Toast.LENGTH_SHORT).show();
+            });
     }
 
     private void hideKeyboard() {
